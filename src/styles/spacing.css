@@ -1,0 +1,26 @@
+/* Page rhythm: header clearance, independent sections, related controls. */
+:root {
+  --app-header-height: 96px;
+  --page-gutter: 40px;
+  --space-page-top: 32px;
+  --space-section: 28px;
+  --space-group: 16px;
+  --space-heading: 8px;
+  --space-card: 24px;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --app-header-height: 88px;
+    --page-gutter: 20px;
+    --space-page-top: 24px;
+    --space-section: 24px;
+    --space-card: 20px;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --page-gutter: 16px;
+  }
+}
