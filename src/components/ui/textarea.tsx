@@ -1,6 +1,9 @@
-import * as React from 'react';
 import { cn } from '@/lib/utils';
-const Textarea = ({ className, ...props }: React.ComponentProps<'textarea'>) => {
+import * as React from 'react';
+
+type TextareaProps = React.ComponentProps<'textarea'>;
+const Textarea = (componentProps: TextareaProps) => {
+  const { className, ...props } = componentProps;
   return (
     <textarea
       data-slot="textarea"

@@ -1,10 +1,10 @@
-import { Pencil } from 'lucide-react';
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Card, CardHeader, CardTitle, CardContent, CardAction } from '@/components/ui/card';
-import Button from '../../../shared/ui/Button';
-import AppIcon from '../../../shared/ui/AppIcon';
-import { remainingDaysInMonth } from '../../../shared/utils/date';
-import { formatMoney } from '../../../shared/utils/money';
+import { Pencil } from 'lucide-react';
+import AppIcon from '../../../base/ui/AppIcon';
+import Button from '../../../base/ui/Button';
+import { remainingDaysInMonth } from '../../../base/utils/date';
+import { formatMoney } from '../../../base/utils/money';
 
 type BudgetSummaryProps = {
   month: string;
@@ -13,7 +13,8 @@ type BudgetSummaryProps = {
   usedPercent: number;
   onEdit: () => void;
 };
-const BudgetSummary = ({ month, budget, spent, usedPercent, onEdit }: BudgetSummaryProps) => {
+const BudgetSummary = (props: BudgetSummaryProps) => {
+  const { month, budget, spent, usedPercent, onEdit } = props;
   const remaining = budget - spent;
   const remainingDays = remainingDaysInMonth(month);
   const perDay = remainingDays > 0 && remaining > 0n ? remaining / BigInt(remainingDays) : 0n;

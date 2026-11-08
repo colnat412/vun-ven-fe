@@ -17,3 +17,13 @@ export const categoryColors: Record<Category, string> = {
   'Giải trí': 'var(--chart-5)',
   Khác: 'var(--chart-6)',
 };
+
+export const getCategoryColor = (category: Category) =>
+  Object.hasOwn(categoryColors, category) ? categoryColors[category] : 'var(--chart-6)';
+
+export const getBookCategories = (book?: import('./types').Book) => [
+  ...new Set([
+    ...(book?.categoryOptions ?? categories),
+    ...(book?.transactions.map((row) => row.category) ?? []),
+  ]),
+];

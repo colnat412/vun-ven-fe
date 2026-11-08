@@ -1,9 +1,38 @@
 'use client';
-import * as React from 'react';
+
 import { cn } from '@/lib/utils';
-import * as RechartsPrimitive from 'recharts';
+import * as React from 'react';
 import type { TooltipValueType } from 'recharts';
-// Format: { THEME_NAME: CSS_SELECTOR }
+import * as RechartsPrimitive from 'recharts';
+
+type ChartContainerProps = React.ComponentProps<'div'> & {
+  config: ChartConfig;
+  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>['children'];
+  initialDimension?: {
+    width: number;
+    height: number;
+  };
+};
+type ChartStyleProps = {
+  id: string;
+  config: ChartConfig;
+};
+type ChartTooltipContentProps = React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+  React.ComponentProps<'div'> & {
+    hideLabel?: boolean;
+    hideIndicator?: boolean;
+    indicator?: 'line' | 'dot' | 'dashed';
+    nameKey?: string;
+    labelKey?: string;
+  } & Omit<
+    RechartsPrimitive.DefaultTooltipContentProps<TooltipValueType, TooltipNameType>,
+    'accessibilityLayer'
+  >;
+type ChartLegendContentProps = React.ComponentProps<'div'> & {
+  hideIcon?: boolean;
+  nameKey?: string;
+} & RechartsPrimitive.DefaultLegendContentProps;
+
 const THEMES = { light: '', dark: '.dark' } as const;
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const;
 type TooltipNameType = number | string;
@@ -34,21 +63,15 @@ const useChart = () => {
   }
   return context;
 };
-const ChartContainer = ({
-  id,
-  className,
-  children,
-  config,
-  initialDimension = INITIAL_DIMENSION,
-  ...props
-}: React.ComponentProps<'div'> & {
-  config: ChartConfig;
-  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>['children'];
-  initialDimension?: {
-    width: number;
-    height: number;
-  };
-}) => {
+const ChartContainer = (componentProps: ChartContainerProps) => {
+  const {
+    id,
+    className,
+    children,
+    config,
+    initialDimension = INITIAL_DIMENSION,
+    ...props
+  } = componentProps;
   const uniqueId = React.useId();
   const chartId = `chart-${id ?? uniqueId.replace(/:/g, '')}`;
   return (
@@ -70,7 +93,8 @@ const ChartContainer = ({
     </ChartContext.Provider>
   );
 };
-const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
+const ChartStyle = (props: ChartStyleProps) => {
+  const { id, config } = props;
   const colorConfig = Object.entries(config).filter(([, config]) => config.theme ?? config.color);
   if (!colorConfig.length) {
     return null;
@@ -97,31 +121,22 @@ ${colorConfig
   );
 };
 const ChartTooltip = RechartsPrimitive.Tooltip;
-const ChartTooltipContent = ({
-  active,
-  payload,
-  className,
-  indicator = 'dot',
-  hideLabel = false,
-  hideIndicator = false,
-  label,
-  labelFormatter,
-  labelClassName,
-  formatter,
-  color,
-  nameKey,
-  labelKey,
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-  React.ComponentProps<'div'> & {
-    hideLabel?: boolean;
-    hideIndicator?: boolean;
-    indicator?: 'line' | 'dot' | 'dashed';
-    nameKey?: string;
-    labelKey?: string;
-  } & Omit<
-    RechartsPrimitive.DefaultTooltipContentProps<TooltipValueType, TooltipNameType>,
-    'accessibilityLayer'
-  >) => {
+const ChartTooltipContent = (props: ChartTooltipContentProps) => {
+  const {
+    active,
+    payload,
+    className,
+    indicator = 'dot',
+    hideLabel = false,
+    hideIndicator = false,
+    label,
+    labelFormatter,
+    labelClassName,
+    formatter,
+    color,
+    nameKey,
+    labelKey,
+  } = props;
   const { config } = useChart();
   const tooltipLabel = React.useMemo(() => {
     if (hideLabel || !payload?.length) {
@@ -227,16 +242,8 @@ const ChartTooltipContent = ({
   );
 };
 const ChartLegend = RechartsPrimitive.Legend;
-const ChartLegendContent = ({
-  className,
-  hideIcon = false,
-  payload,
-  verticalAlign = 'bottom',
-  nameKey,
-}: React.ComponentProps<'div'> & {
-  hideIcon?: boolean;
-  nameKey?: string;
-} & RechartsPrimitive.DefaultLegendContentProps) => {
+const ChartLegendContent = (props: ChartLegendContentProps) => {
+  const { className, hideIcon = false, payload, verticalAlign = 'bottom', nameKey } = props;
   const { config } = useChart();
   if (!payload?.length) {
     return null;
@@ -300,9 +307,9 @@ const getPayloadConfigFromPayload = (config: ChartConfig, payload: unknown, key:
 };
 export {
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  ChartTooltip,
+  ChartTooltipContent,
 };

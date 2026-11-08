@@ -1,17 +1,18 @@
-import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router';
 import { lazy, Suspense } from 'react';
+import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router';
 import AppLayout from './app/layouts/AppLayout';
+import PageState from './base/ui/PageState';
+import LoginPage from './features/auth/LoginPage';
 import HomePage from './features/home/pages/HomePage';
-import TransactionsPage from './features/transactions/pages/TransactionsPage';
 import SettingsPage from './features/settings/pages/SettingsPage';
-import PageState from './shared/ui/PageState';
+import TransactionsPage from './features/transactions/pages/TransactionsPage';
 
 const ReportsPage = lazy(() => import('./features/reports/pages/ReportsPage'));
 const ScanPage = lazy(() => import('./features/scan/pages/ScanPage'));
-
 const App = () => (
   <BrowserRouter>
     <Routes>
+      <Route path="login" element={<LoginPage />} />
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
         <Route path="transactions" element={<TransactionsPage />} />
@@ -32,6 +33,7 @@ const App = () => (
             </Suspense>
           }
         />
+        <Route path="account" element={<Navigate to="/settings" replace />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route
           path="*"
@@ -48,5 +50,4 @@ const App = () => (
     </Routes>
   </BrowserRouter>
 );
-
 export default App;

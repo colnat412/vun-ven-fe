@@ -1,11 +1,11 @@
+import type { FormEvent } from 'react';
 import { FieldError } from '@/components/ui/field';
-import { useState } from 'react';
-import Modal from '../../../shared/ui/Modal';
-import MoneyInput from '../../../shared/ui/MoneyInput';
-import Button from '../../../shared/ui/Button';
-import { monthLabel } from '../../../shared/utils/date';
-import { useUpdateBudget } from '../../transactions/hooks/useBook';
+import Button from '../../../base/ui/Button';
+import Modal from '../../../base/ui/Modal';
+import MoneyInput from '../../../base/ui/MoneyInput';
+import { monthLabel } from '../../../base/utils/date';
 import type { Category } from '../../transactions/types';
+import useBudgetForm from '../hooks/useBudgetForm';
 
 type BudgetEditorProps = {
   month: string;
@@ -13,36 +13,33 @@ type BudgetEditorProps = {
   initialAmount: string;
   onClose: () => void;
 };
-const BudgetEditor = ({ month, category, initialAmount, onClose }: BudgetEditorProps) => {
-  const [amount, setAmount] = useState(initialAmount);
-  const mutation = useUpdateBudget();
+const BudgetEditor = (props: BudgetEditorProps) => {
+  const { month, category, initialAmount, onClose } = props;
+  const { amount, changeAmount, submit, validationError, error, isSaving } = useBudgetForm({
+    month,
+    category,
+    initialAmount,
+  });
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (await submit()) onClose();
+  };
   return (
     <Modal
       title={category ? `Hạn mức ${category}` : `Ngân sách ${monthLabel(month).toLowerCase()}`}
       onClose={onClose}
     >
-      <form
-        className="stack"
-        onSubmit={(event) => {
-          event.preventDefault();
-          mutation.mutate({ month, amount, category }, { onSuccess: onClose });
-        }}
-      >
+      <form className="stack" onSubmit={handleSubmit}>
         <MoneyInput
           label="Hạn mức (VND)"
           value={amount}
-          onValueChange={setAmount}
+          onValueChange={changeAmount}
+          error={validationError || undefined}
           required
           autoFocus
         />
-        {/* <FieldDescription className="muted small">
-          {monthLabel(month)} · Số 0 nghĩa là chưa đặt hạn mức.
-          {category && ' Hạn mức danh mục không tự thay đổi tổng ngân sách.'}
-        </FieldDescription> */}
-        {mutation.error && (
-          <FieldError className="field-error">{mutation.error.message}</FieldError>
-        )}
-        <Button type="submit" isLoading={mutation.isPending}>
+        {error && <FieldError className="field-error">{error}</FieldError>}
+        <Button type="submit" isLoading={isSaving}>
           Lưu ngân sách
         </Button>
       </form>

@@ -1,13 +1,18 @@
 'use client';
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
+
 import { cn } from '@/lib/utils';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { Tabs as TabsPrimitive } from 'radix-ui';
-const Tabs = ({
-  className,
-  orientation = 'horizontal',
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) => {
+import * as React from 'react';
+
+type TabsProps = React.ComponentProps<typeof TabsPrimitive.Root>;
+type TabsListProps = React.ComponentProps<typeof TabsPrimitive.List> &
+  VariantProps<typeof tabsListVariants>;
+type TabsTriggerProps = React.ComponentProps<typeof TabsPrimitive.Trigger>;
+type TabsContentProps = React.ComponentProps<typeof TabsPrimitive.Content>;
+
+const Tabs = (componentProps: TabsProps) => {
+  const { className, orientation = 'horizontal', ...props } = componentProps;
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
@@ -32,11 +37,8 @@ const tabsListVariants = cva(
     },
   },
 );
-const TabsList = ({
-  className,
-  variant = 'default',
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.List> & VariantProps<typeof tabsListVariants>) => {
+const TabsList = (componentProps: TabsListProps) => {
+  const { className, variant = 'default', ...props } = componentProps;
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
@@ -46,10 +48,8 @@ const TabsList = ({
     />
   );
 };
-const TabsTrigger = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger>) => {
+const TabsTrigger = (componentProps: TabsTriggerProps) => {
+  const { className, ...props } = componentProps;
   return (
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
@@ -64,10 +64,8 @@ const TabsTrigger = ({
     />
   );
 };
-const TabsContent = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Content>) => {
+const TabsContent = (componentProps: TabsContentProps) => {
+  const { className, ...props } = componentProps;
   return (
     <TabsPrimitive.Content
       data-slot="tabs-content"
@@ -76,4 +74,4 @@ const TabsContent = ({
     />
   );
 };
-export { Tabs, TabsList, TabsTrigger, TabsContent };
+export { Tabs, TabsContent, TabsList, TabsTrigger };

@@ -1,9 +1,13 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { today, dateKey, formatDate, compareDateTimeDescending } from '../../../shared/utils/date';
+import { compareDateTimeDescending, dateKey, formatDate, today } from '../../../base/utils/date';
 import type { Transaction } from '../types';
 import TransactionList from './TransactionList';
 
-const GroupedTransactionList = ({ transactions }: { transactions: Transaction[] }) => {
+type GroupedTransactionListProps = {
+  transactions: Transaction[];
+};
+const GroupedTransactionList = (props: GroupedTransactionListProps) => {
+  const { transactions } = props;
   const groups = new Map<string, Transaction[]>();
   for (const transaction of [...transactions].sort((a, b) =>
     compareDateTimeDescending(a.date, b.date),
@@ -38,5 +42,4 @@ const GroupedTransactionList = ({ transactions }: { transactions: Transaction[] 
     </div>
   );
 };
-
 export default GroupedTransactionList;

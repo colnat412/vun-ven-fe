@@ -1,9 +1,15 @@
+import { amountError } from '@/base/utils/amountValidation';
+import { currentTime, isValidDate, isValidTime, today } from '@/base/utils/date';
 import { useState } from 'react';
-import { today, currentTime, isValidDate, isValidTime } from '../../../shared/utils/date';
-import { useCreateTransaction } from './useBook';
 import type { TransactionInput } from '../types';
+import { useCreateTransaction } from './useCreateTransaction';
+import { useUpdateTransaction } from './useUpdateTransaction';
 
-const useTransactionForm = (onSaved: () => void) => {
+export type UseTransactionFormParams = {
+  initialValues?: Partial<TransactionInput>;
+  transactionId?: string;
+};
+const useTransactionForm = (params: UseTransactionFormParams = {}) => {
   const [values, setValues] = useState<TransactionInput>(() => ({
     amount: '',
     note: '',
@@ -12,30 +18,35 @@ const useTransactionForm = (onSaved: () => void) => {
     date: today(),
     time: currentTime(),
     type: 'expense',
+    ...params.initialValues,
   }));
   const [validationError, setValidationError] = useState('');
-  const mutation = useCreateTransaction();
-  const setField = <K extends keyof TransactionInput>(key: K, value: TransactionInput[K]) =>
+  const create = useCreateTransaction();
+  const update = useUpdateTransaction();
+  const mutation = params.transactionId ? update : create;
+  const setField = <K extends keyof TransactionInput>(key: K, value: TransactionInput[K]) => {
     setValues((previous) => ({ ...previous, [key]: value }));
-  const submit = async () => {
-    if (
-      !/^\d{1,13}$/.test(values.amount) ||
-      BigInt(values.amount) <= 0n ||
-      BigInt(values.amount) > 1000000000000n
-    ) {
-      setValidationError('Nhập số tiền nguyên từ 1 đến 1.000.000.000.000 đồng.');
-      return;
+    setValidationError('');
+    if (mutation.isError) mutation.reset();
+  };
+  const submit = async (): Promise<boolean> => {
+    const moneyError = amountError(values.amount, 1n);
+    if (moneyError) {
+      setValidationError(moneyError);
+      return false;
     }
     if (!isValidDate(values.date) || !isValidTime(values.time)) {
       setValidationError('Ngày hoặc giờ giao dịch không hợp lệ.');
-      return;
+      return false;
     }
     setValidationError('');
     try {
-      await mutation.mutateAsync(values);
-      onSaved();
+      if (params.transactionId)
+        await update.mutateAsync({ id: params.transactionId, input: values });
+      else await create.mutateAsync(values);
+      return true;
     } catch {
-      /* useMutation exposes the error to the form. */
+      return false;
     }
   };
   return {
@@ -46,5 +57,4 @@ const useTransactionForm = (onSaved: () => void) => {
     error: validationError || mutation.error?.message,
   };
 };
-
 export default useTransactionForm;

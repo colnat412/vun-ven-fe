@@ -1,24 +1,26 @@
-import * as React from 'react';
+import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button-variants';
 import { cn } from '@/lib/utils';
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import * as React from 'react';
 import { DayPicker, getDefaultClassNames, type DayButton } from 'react-day-picker';
 
-import { Button, buttonVariants } from '@/components/ui/button';
-
-const Calendar = ({
-  className,
-  classNames,
-  showOutsideDays = true,
-  captionLayout = 'label',
-  buttonVariant = 'ghost',
-  formatters,
-  components,
-  ...props
-}: React.ComponentProps<typeof DayPicker> & {
+type CalendarProps = React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>['variant'];
-}) => {
+};
+type CalendarDayButtonProps = React.ComponentProps<typeof DayButton>;
+const Calendar = (componentProps: CalendarProps) => {
+  const {
+    className,
+    classNames,
+    showOutsideDays = true,
+    captionLayout = 'label',
+    buttonVariant = 'ghost',
+    formatters,
+    components,
+    ...props
+  } = componentProps;
   const defaultClassNames = getDefaultClassNames();
-
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -113,11 +115,9 @@ const Calendar = ({
           if (orientation === 'left') {
             return <ChevronLeftIcon className={cn('size-4', className)} {...props} />;
           }
-
           if (orientation === 'right') {
             return <ChevronRightIcon className={cn('size-4', className)} {...props} />;
           }
-
           return <ChevronDownIcon className={cn('size-4', className)} {...props} />;
         },
         DayButton: CalendarDayButton,
@@ -136,20 +136,13 @@ const Calendar = ({
     />
   );
 };
-
-const CalendarDayButton = ({
-  className,
-  day,
-  modifiers,
-  ...props
-}: React.ComponentProps<typeof DayButton>) => {
+const CalendarDayButton = (componentProps: CalendarDayButtonProps) => {
+  const { className, day, modifiers, ...props } = componentProps;
   const defaultClassNames = getDefaultClassNames();
-
   const ref = React.useRef<HTMLButtonElement>(null);
   React.useEffect(() => {
     if (modifiers.focused) ref.current?.focus();
   }, [modifiers.focused]);
-
   return (
     <Button
       type="button"
@@ -175,5 +168,4 @@ const CalendarDayButton = ({
     />
   );
 };
-
 export { Calendar, CalendarDayButton };

@@ -1,10 +1,22 @@
-import * as React from 'react';
-import { Slot } from 'radix-ui';
 import { cn } from '@/lib/utils';
-const Card = ({ className, ...props }: React.ComponentProps<'div'>) => {
+import { Slot } from 'radix-ui';
+import * as React from 'react';
+
+type CardProps = React.ComponentProps<'div'>;
+type CardHeaderProps = React.ComponentProps<'div'>;
+type CardTitleProps = React.ComponentProps<'h2'> & {
+  asChild?: boolean;
+};
+type CardDescriptionProps = React.ComponentProps<'div'>;
+type CardActionProps = React.ComponentProps<'div'>;
+type CardContentProps = React.ComponentProps<'div'>;
+type CardFooterProps = React.ComponentProps<'div'>;
+const Card = (componentProps: CardProps) => {
+  const { className, ...props } = componentProps;
   return <div data-slot="card" className={cn('card', className)} {...props} />;
 };
-const CardHeader = ({ className, ...props }: React.ComponentProps<'div'>) => {
+const CardHeader = (componentProps: CardHeaderProps) => {
+  const { className, ...props } = componentProps;
   return (
     <div
       data-slot="card-header"
@@ -16,11 +28,8 @@ const CardHeader = ({ className, ...props }: React.ComponentProps<'div'>) => {
     />
   );
 };
-const CardTitle = ({
-  className,
-  asChild = false,
-  ...props
-}: React.ComponentProps<'h2'> & { asChild?: boolean }) => {
+const CardTitle = (componentProps: CardTitleProps) => {
+  const { className, asChild = false, ...props } = componentProps;
   const Comp = asChild ? Slot.Root : 'h2';
   return (
     <Comp
@@ -30,7 +39,8 @@ const CardTitle = ({
     />
   );
 };
-const CardDescription = ({ className, ...props }: React.ComponentProps<'div'>) => {
+const CardDescription = (componentProps: CardDescriptionProps) => {
+  const { className, ...props } = componentProps;
   return (
     <div
       data-slot="card-description"
@@ -39,7 +49,8 @@ const CardDescription = ({ className, ...props }: React.ComponentProps<'div'>) =
     />
   );
 };
-const CardAction = ({ className, ...props }: React.ComponentProps<'div'>) => {
+const CardAction = (componentProps: CardActionProps) => {
+  const { className, ...props } = componentProps;
   return (
     <div
       data-slot="card-action"
@@ -48,10 +59,12 @@ const CardAction = ({ className, ...props }: React.ComponentProps<'div'>) => {
     />
   );
 };
-const CardContent = ({ className, ...props }: React.ComponentProps<'div'>) => {
+const CardContent = (componentProps: CardContentProps) => {
+  const { className, ...props } = componentProps;
   return <div data-slot="card-content" className={cn('p-0', className)} {...props} />;
 };
-const CardFooter = ({ className, ...props }: React.ComponentProps<'div'>) => {
+const CardFooter = (componentProps: CardFooterProps) => {
+  const { className, ...props } = componentProps;
   return (
     <div
       data-slot="card-footer"
@@ -60,4 +73,4 @@ const CardFooter = ({ className, ...props }: React.ComponentProps<'div'>) => {
     />
   );
 };
-export { Card, CardHeader, CardFooter, CardTitle, CardAction, CardDescription, CardContent };
+export { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle };

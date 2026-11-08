@@ -1,27 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createTransaction, getBook, updateBudget } from '../api/bookApi';
+import { useBaseQuery } from '@/base/hooks/useBaseQuery';
+import { useSession } from '../../auth/session';
+import { getBook } from '../api/bookApi';
+import { transactionKeys } from '../key';
 
-const bookKey = ['demo', 'personal-book'] as const;
-
-export const useBook = () =>
-  useQuery({ queryKey: bookKey, queryFn: getBook, staleTime: 30_000, retry: false });
-export const useCreateTransaction = () => {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: createTransaction,
-    retry: false,
-    onSuccess: (book) => {
-      client.setQueryData(bookKey, book);
-    },
-  });
-};
-export const useUpdateBudget = () => {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: updateBudget,
-    retry: false,
-    onSuccess: (book) => {
-      client.setQueryData(bookKey, book);
-    },
+export const useBook = () => {
+  const session = useSession();
+  return useBaseQuery({
+    queryKey: transactionKeys.book(session),
+    queryFn: ({ signal }) => getBook(session, signal),
+    staleTime: 30_000,
   });
 };

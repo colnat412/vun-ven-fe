@@ -1,12 +1,12 @@
-import { sumMoney, percentage } from '../../../shared/utils/money';
 import {
+  compareDateTimeDescending,
   currentMonth,
-  today,
   dateKey,
   monthKey,
-  compareDateTimeDescending,
-} from '../../../shared/utils/date';
-import { categories } from '../../transactions/constants';
+  today,
+} from '../../../base/utils/date';
+import { percentage, sumMoney } from '../../../base/utils/money';
+import { getBookCategories } from '../../transactions/constants';
 import { useBook } from '../../transactions/hooks/useBook';
 
 const useOverview = (month = currentMonth()) => {
@@ -21,7 +21,7 @@ const useOverview = (month = currentMonth()) => {
   const todaySpent = sumMoney(
     expenses.filter((row) => dateKey(row.date) === today()).map((row) => row.amount),
   );
-  const byCategory = categories
+  const byCategory = getBookCategories(query.data)
     .map((category) => ({
       category,
       amount: sumMoney(

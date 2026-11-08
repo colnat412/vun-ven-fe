@@ -1,14 +1,13 @@
-import { compareDateTimeDescending } from '../../../shared/utils/date';
-import { useState } from 'react';
-import { Plus, Search } from 'lucide-react';
-import Button from '../../../shared/ui/Button';
-import Input from '../../../shared/ui/Input';
-import Modal from '../../../shared/ui/Modal';
-import PageState from '../../../shared/ui/PageState';
-import GroupedTransactionList from '../components/GroupedTransactionList';
-import TransactionForm from '../components/TransactionForm';
-import { useBook } from '../hooks/useBook';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Search } from 'lucide-react';
+import { useState } from 'react';
+import Button from '../../../base/ui/Button';
+import Input from '../../../base/ui/Input';
+import PageState from '../../../base/ui/PageState';
+import { compareDateTimeDescending } from '../../../base/utils/date';
+import TransactionDialog from '../../transactions/components/TransactionDialog';
+import GroupedTransactionList from '../components/GroupedTransactionList';
+import { useBook } from '../hooks/useBook';
 
 const TransactionsPage = () => {
   const query = useBook();
@@ -65,19 +64,14 @@ const TransactionsPage = () => {
         />
       ) : rows.length ? (
         <div className="stack">
-          <p className="muted small">{rows.length} giao dịch · Lưu trên trình duyệt</p>
+          <p className="muted small">{rows.length} giao dịch</p>
           <GroupedTransactionList transactions={rows} />
         </div>
       ) : (
         <PageState kind="empty" message="Không có giao dịch phù hợp." />
       )}
-      {isOpen && (
-        <Modal title="Thêm giao dịch" onClose={() => setIsOpen(false)}>
-          <TransactionForm onSaved={() => setIsOpen(false)} />
-        </Modal>
-      )}
+      <TransactionDialog open={isOpen} title="Thêm giao dịch" onClose={() => setIsOpen(false)} />
     </div>
   );
 };
-
 export default TransactionsPage;

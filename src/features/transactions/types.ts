@@ -1,4 +1,5 @@
-export type Category = 'Ăn uống' | 'Di chuyển' | 'Mua sắm' | 'Hóa đơn' | 'Giải trí' | 'Khác';
+export type Category = string;
+export type CategoryDefinition = { id: string; name: string; isActive: boolean };
 export type Transaction = {
   id: string;
   amount: string;
@@ -12,6 +13,10 @@ export type Transaction = {
 export type TransactionInput = Omit<Transaction, 'id'> & { time: string };
 export type Book = {
   version: 1;
+  source?: 'server' | 'guest';
+  categoryOptions?: Category[];
+  categoryDefinitions?: CategoryDefinition[];
+  walletOptions?: string[];
   transactions: Transaction[];
   budgets: Record<string, string>;
   categoryBudgets?: Record<string, Partial<Record<Category, string>>>;

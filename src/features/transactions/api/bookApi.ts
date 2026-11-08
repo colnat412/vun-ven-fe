@@ -1,157 +1,124 @@
-import { currentMonth, today, isValidDateTime, toDateTime } from '../../../shared/utils/date';
-import { categories, wallets } from '../constants';
-import type { Book, Category, Transaction, TransactionInput } from '../types';
+import { toDateTime } from '../../../base/utils/date';
+import { apiClient } from '@/lib/apiClient';
+import { getSession, type Session } from '../../auth/session';
+import type { Book, Transaction, TransactionInput } from '../types';
+import * as guest from './guestBookApi';
 
-const storageKey = 'hu.demo.book.v1';
-const validAmount = (value: unknown): value is string =>
-  typeof value === 'string' && /^\d{1,13}$/.test(value) && BigInt(value) <= 1000000000000n;
-const validTransaction = (value: unknown): value is Transaction => {
-  if (!value || typeof value !== 'object') return false;
-  const row = value as Record<string, unknown>;
-  return (
-    typeof row.id === 'string' &&
-    validAmount(row.amount) &&
-    BigInt(row.amount) > 0n &&
-    typeof row.note === 'string' &&
-    row.note.length <= 160 &&
-    categories.includes(row.category as Transaction['category']) &&
-    wallets.includes(row.wallet as string) &&
-    isValidDateTime(row.date) &&
-    (row.type === 'expense' || row.type === 'income')
-  );
+type ServerCategory = { id: string; name: string; code: string; isActive: boolean };
+type ServerWallet = { id: string; name: string; isActive: boolean };
+type ServerBook = { id: string; categories: ServerCategory[]; wallets: ServerWallet[] };
+type ServerTransaction = {
+  id: string;
+  kind: Transaction['type'];
+  amountVnd: string;
+  note: string;
+  occurredOn: string;
+  occurredAt: string | null;
+  categoryCode: string;
+  categoryName: string;
+  walletName: string;
 };
+type Page = { items: ServerTransaction[]; total: number; page: number; limit: number };
+const bookPath = (session: Session) => '/books/' + encodeURIComponent(session.bookId);
 
-const seedBook = (): Book => {
-  const month = currentMonth();
-  const day = today();
-  const rows: Transaction[] = [
-    {
-      id: 'sample-1',
-      amount: '65000',
-      note: 'Bữa trưa cùng đồng nghiệp',
-      category: 'Ăn uống',
-      wallet: 'Chuyển khoản',
-      date: toDateTime(day, '12:15'),
-      type: 'expense',
-    },
-    {
-      id: 'sample-2',
-      amount: '35000',
-      note: 'Cà phê sáng',
-      category: 'Ăn uống',
-      wallet: 'Tiền mặt',
-      date: toDateTime(day, '08:30'),
-      type: 'expense',
-    },
-    {
-      id: 'sample-3',
-      amount: '83000',
-      note: 'Đổ xăng',
-      category: 'Di chuyển',
-      wallet: 'Chuyển khoản',
-      date: toDateTime(`${month}-01`, '17:45'),
-      type: 'expense',
-    },
-  ];
-  return { version: 1, transactions: rows, budgets: { [month]: '10000000' } };
-};
-
-const readBook = (): Book => {
-  const raw = localStorage.getItem(storageKey);
-  if (!raw) return seedBook();
-  const data = JSON.parse(raw) as Book;
-  // Keep books saved before the wallet label changed readable.
-  if (Array.isArray(data?.transactions)) {
-    data.transactions = data.transactions.map((row) =>
-      row && typeof row === 'object' && row.wallet === 'Tài khoản ngân hàng'
-        ? { ...row, wallet: 'Chuyển khoản' }
-        : row,
+export async function getBook(
+  session: Session | null = getSession(),
+  signal?: AbortSignal,
+): Promise<Book> {
+  if (!session) return guest.getBook();
+  if (!session.bookId)
+    return {
+      version: 1,
+      source: 'server',
+      transactions: [],
+      budgets: {},
+      categoryOptions: [],
+      walletOptions: [],
+    };
+  const book = await apiClient.get<ServerBook>(bookPath(session), {
+    signal,
+    accessToken: session.accessToken,
+  });
+  // The existing overview computes totals on the client: load every page, never a partial total.
+  const transactions: Transaction[] = [];
+  const seen = new Set<string>();
+  for (let page = 1; ; page++) {
+    const result = await apiClient.get<Page>(
+      bookPath(session) + '/transactions?limit=100&page=' + page,
+      { signal, accessToken: session.accessToken },
     );
+    for (const row of result.items) {
+      if (seen.has(row.id)) throw new Error('Danh sách đang thay đổi. Hãy tải lại dữ liệu.');
+      seen.add(row.id);
+      transactions.push({
+        id: row.id,
+        type: row.kind,
+        amount: row.amountVnd,
+        note: row.note,
+        category: row.categoryName,
+        wallet: row.walletName,
+        date: row.occurredAt ?? row.occurredOn,
+      });
+    }
+    if (transactions.length >= result.total) break;
+    if (!result.items.length) throw new Error('Chưa tải đủ giao dịch. Hãy tải lại dữ liệu.');
   }
-  if (
-    !data ||
-    data.version !== 1 ||
-    !Array.isArray(data.transactions) ||
-    !data.transactions.every(validTransaction) ||
-    !data.budgets ||
-    typeof data.budgets !== 'object' ||
-    !Object.entries(data.budgets).every(
-      ([month, amount]) => /^\d{4}-(0[1-9]|1[0-2])$/.test(month) && validAmount(amount),
-    )
-  ) {
-    throw new Error(
-      'Dữ liệu trên thiết bị không đúng định dạng. Hãy xuất hoặc kiểm tra dữ liệu trước khi tiếp tục.',
-    );
-  }
-  if (
-    data.categoryBudgets !== undefined &&
-    (!data.categoryBudgets ||
-      typeof data.categoryBudgets !== 'object' ||
-      Array.isArray(data.categoryBudgets) ||
-      !Object.entries(data.categoryBudgets).every(
-        ([month, limits]) =>
-          /^\d{4}-(0[1-9]|1[0-2])$/.test(month) &&
-          limits &&
-          typeof limits === 'object' &&
-          !Array.isArray(limits) &&
-          Object.entries(limits).every(
-            ([category, amount]) =>
-              categories.includes(category as Category) && validAmount(amount),
-          ),
-      ))
-  ) {
-    throw new Error('Hạn mức danh mục trên thiết bị không đúng định dạng.');
-  }
-  return data;
-};
-
-const writeBook = (book: Book) => {
-  try {
-    localStorage.setItem(storageKey, JSON.stringify(book));
-  } catch {
-    throw new Error('Không lưu được trên trình duyệt. Hãy kiểm tra quyền lưu trữ hoặc dung lượng.');
-  }
-  return book;
-};
-
-export const getBook = async () => readBook();
-export const createTransaction = async (input: TransactionInput) => {
-  const { time, ...fields } = input;
-  const row = {
-    ...fields,
-    date: toDateTime(input.date, time),
-    id: crypto.randomUUID(),
-    note: input.note.trim(),
+  return {
+    version: 1,
+    source: 'server',
+    transactions,
+    budgets: {},
+    categoryDefinitions: book.categories,
+    categoryOptions: book.categories.filter((row) => row.isActive).map((row) => row.name),
+    walletOptions: book.wallets.filter((row) => row.isActive).map((row) => row.name),
   };
-  if (!validTransaction(row)) throw new Error('Thông tin giao dịch chưa hợp lệ.');
-  const book = readBook();
-  return writeBook({ ...book, transactions: [row, ...book.transactions] });
-};
-export const updateBudget = async ({
-  month,
-  amount,
-  category,
-}: {
-  month: string;
-  amount: string;
-  category?: Category;
-}) => {
-  if (
-    !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) ||
-    !validAmount(amount) ||
-    (category !== undefined && !categories.includes(category))
-  )
-    throw new Error('Ngân sách không hợp lệ.');
-  const book = readBook();
-  if (category !== undefined) {
-    return writeBook({
-      ...book,
-      categoryBudgets: {
-        ...book.categoryBudgets,
-        [month]: { ...book.categoryBudgets?.[month], [category]: amount },
-      },
-    });
-  }
-  return writeBook({ ...book, budgets: { ...book.budgets, [month]: amount } });
-};
-export const exportBook = () => JSON.stringify(readBook(), null, 2);
+}
+async function saveTransaction(input: TransactionInput, session: Session | null, id?: string) {
+  if (!session) return id ? guest.updateTransaction(id, input) : guest.createTransaction(input);
+  if (!session.bookId) throw new Error('Hãy chọn hoặc tạo sổ trong Cài đặt trước.');
+  const book = await apiClient.get<ServerBook>(bookPath(session), {
+    accessToken: session.accessToken,
+  });
+  const category = book.categories.find((row) => row.isActive && row.name === input.category);
+  const wallet = book.wallets.find((row) => row.isActive && row.name === input.wallet);
+  if (!category || !wallet)
+    throw new Error('Danh mục hoặc ví không còn hoạt động. Hãy tải lại sổ.');
+  const request = id ? apiClient.put : apiClient.post;
+  return request<ServerTransaction>(
+    bookPath(session) + '/transactions' + (id ? '/' + encodeURIComponent(id) : ''),
+    {
+      kind: input.type,
+      amountVnd: input.amount,
+      categoryId: category.id,
+      walletId: wallet.id,
+      note: input.note.trim(),
+      occurredAt: toDateTime(input.date, input.time),
+    },
+    { accessToken: session.accessToken },
+  );
+}
+export async function updateBudget(
+  input: Parameters<typeof guest.updateBudget>[0],
+  session: Session | null = getSession(),
+) {
+  if (session) throw new Error('Ngân sách tài khoản chưa được hỗ trợ.');
+  return guest.updateBudget(input);
+}
+
+export const createTransaction = (
+  input: TransactionInput,
+  session: Session | null = getSession(),
+) => saveTransaction(input, session);
+export const updateTransaction = (
+  id: string,
+  input: TransactionInput,
+  session: Session | null = getSession(),
+) => saveTransaction(input, session, id);
+
+export async function deleteTransaction(id: string, session: Session | null = getSession()) {
+  if (!session) return guest.deleteTransaction(id);
+  if (!session.bookId) throw new Error('Hãy chọn hoặc tạo sổ trong Cài đặt trước.');
+  await apiClient.delete<void>(bookPath(session) + '/transactions/' + encodeURIComponent(id), {
+    accessToken: session.accessToken,
+  });
+}

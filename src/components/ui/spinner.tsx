@@ -1,6 +1,9 @@
 import { cn } from '@/lib/utils';
 import { Loader2Icon } from 'lucide-react';
-const Spinner = ({ className, ...props }: React.ComponentProps<'svg'>) => {
+
+type SpinnerProps = React.ComponentProps<'svg'>;
+const Spinner = (componentProps: SpinnerProps) => {
+  const { className, ...props } = componentProps;
   return (
     <Loader2Icon
       role="status"
