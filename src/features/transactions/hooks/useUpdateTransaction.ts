@@ -1,4 +1,5 @@
 import { useBaseMutation } from '@/base/hooks/useBaseMutation';
+import { budgetKeys } from '../../budgets/key';
 import { useSession } from '../../auth/session';
 import { updateTransaction } from '../api/bookApi';
 import { transactionKeys } from '../key';
@@ -10,6 +11,6 @@ export const useUpdateTransaction = () => {
     mutationKey: transactionKeys.update,
     mutationFn: ({ id, input }: { id: string; input: TransactionInput }) =>
       updateTransaction(id, input, session),
-    invalidateKeys: [transactionKeys.book(session)],
+    invalidateKeys: [transactionKeys.book(session), budgetKeys.book(session)],
   });
 };

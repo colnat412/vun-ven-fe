@@ -4,13 +4,12 @@ import { CircleAlert, Pencil, Plus } from 'lucide-react';
 import Button from '../../../base/ui/Button';
 import { formatMoney, percentage } from '../../../base/utils/money';
 import { getCategoryColor } from '../../transactions/constants';
-import type { Category } from '../../transactions/types';
 import type { getCategoryBudgets } from '../utils/categoryBudgets';
 
 type CategoryBudgetItemProps = {
   row: ReturnType<typeof getCategoryBudgets>[number];
   totalSpent: bigint;
-  onEdit: (category: Category, amount: string) => void;
+  onEdit: (row: ReturnType<typeof getCategoryBudgets>[number]) => void;
 };
 const CategoryBudgetItem = (props: CategoryBudgetItemProps) => {
   const { row, totalSpent, onEdit } = props;
@@ -34,37 +33,45 @@ const CategoryBudgetItem = (props: CategoryBudgetItemProps) => {
         <strong className="shrink-0 text-sm font-semibold">{formatMoney(row.spent)}</strong>
       </div>
       <Progress
-        value={percentage(row.spent, totalSpent)}
-        aria-label={`Tỷ trọng tiền ra ${row.category}`}
+        value={
+          row.hasLimit
+            ? row.limit === 0n && row.spent > 0n
+              ? 100
+              : Math.min(100, row.usedPercent)
+            : 0
+        }
+        aria-label={`Tiến độ ngân sách ${row.category}`}
         indicatorStyle={{ background: getCategoryColor(row.category) }}
         className="mt-3 bg-muted"
       />
       <div className="row mt-2">
         <div className="small muted">
           <p>
-            {row.limit > 0n ? `Hạn mức ${formatMoney(row.limit)}` : 'Chưa đặt hạn mức'} ·{' '}
+            {row.hasLimit ? `Hạn mức ${formatMoney(row.limit)}` : 'Chưa đặt hạn mức'} ·{' '}
             {percentage(row.spent, totalSpent).toFixed(0)}% tiền ra
           </p>
-          {row.limit > 0n && (
-            <p className={row.remaining < 0n ? 'text-destructive' : ''}>
-              {row.remaining < 0n && (
+          {row.hasLimit && (
+            <p className={row.remaining < 0n || row.usedPercent >= 80 ? 'text-destructive' : ''}>
+              {(row.remaining < 0n || row.usedPercent >= 80) && (
                 <CircleAlert size={12} className="mr-1 inline" aria-hidden="true" />
               )}
               {row.remaining < 0n
                 ? `Vượt ${formatMoney(-row.remaining)}`
                 : `Còn ${formatMoney(row.remaining)}`}{' '}
-              · Đã dùng {row.usedPercent.toFixed(0)}% hạn mức
+              {row.limit > 0n && `· Đã dùng ${row.usedPercent.toFixed(0)}% hạn mức`}
             </p>
           )}
-          {row.limit === 0n && <p>Chưa giới hạn</p>}
+          {!row.hasLimit && <p>Chưa giới hạn</p>}
+          {!row.isActive && <p>Danh mục đã ngừng sử dụng</p>}
         </div>
         <Button
           variant="ghost"
           className="min-h-10 shrink-0 p-2"
-          aria-label={`${row.limit > 0n ? 'Sửa' : 'Đặt'} hạn mức ${row.category}`}
-          onClick={() => onEdit(row.category, row.limit.toString())}
+          aria-label={`${row.hasLimit ? 'Sửa' : 'Đặt'} hạn mức ${row.category}`}
+          disabled={!row.isActive && !row.hasLimit}
+          onClick={() => onEdit(row)}
         >
-          {row.limit > 0n ? <Pencil size={16} /> : <Plus size={16} />}
+          {row.hasLimit ? <Pencil size={16} /> : <Plus size={16} />}
         </Button>
       </div>
     </Item>

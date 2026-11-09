@@ -97,14 +97,6 @@ async function saveTransaction(input: TransactionInput, session: Session | null,
     { accessToken: session.accessToken },
   );
 }
-export async function updateBudget(
-  input: Parameters<typeof guest.updateBudget>[0],
-  session: Session | null = getSession(),
-) {
-  if (session) throw new Error('Ngân sách tài khoản chưa được hỗ trợ.');
-  return guest.updateBudget(input);
-}
-
 export const createTransaction = (
   input: TransactionInput,
   session: Session | null = getSession(),

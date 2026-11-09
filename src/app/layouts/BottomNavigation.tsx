@@ -12,7 +12,7 @@ import AppIcon from '../../base/ui/AppIcon';
 const items = [
   { to: '/', label: 'Trang chủ', icon: 'home' },
   { to: '/transactions', label: 'Giao dịch', icon: 'time-past' },
-  { to: '/reports', label: 'Thống kê', icon: 'stats' },
+  { to: '/reports', label: 'Báo cáo', icon: 'stats' },
   { to: '/settings', label: 'Cài đặt', icon: 'settings' },
 ] as const;
 const BottomNavigation = () => {

@@ -6,15 +6,16 @@ import { Fragment } from 'react';
 import { formatMoney } from '../../../base/utils/money';
 import type { ReportCategoryRow } from '../types';
 
-type ReportIncomeCategoriesProps = {
+type ReportCategoryDetailsProps = {
+  label: string;
   breakdown: ReportCategoryRow[];
 };
-const ReportIncomeCategories = (props: ReportIncomeCategoriesProps) => {
-  const { breakdown } = props;
+const ReportCategoryDetails = (props: ReportCategoryDetailsProps) => {
+  const { label, breakdown } = props;
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Tiền vào theo danh mục</CardTitle>
+        <CardTitle>{label} theo danh mục</CardTitle>
         <Badge variant="secondary">{breakdown.length} danh mục</Badge>
       </CardHeader>
       <CardContent>
@@ -41,11 +42,13 @@ const ReportIncomeCategories = (props: ReportIncomeCategoriesProps) => {
                 </div>
                 <Progress
                   value={row.share}
-                  aria-label={`Tỷ trọng tiền vào ${row.category}`}
+                  aria-label={`Tỷ trọng ${label.toLowerCase()} ${row.category}`}
                   indicatorStyle={{ background: row.color }}
                   className="mt-3 bg-muted"
                 />
-                <p className="small muted mt-2">{row.share.toFixed(0)}% tiền vào</p>
+                <p className="small muted mt-2">
+                  {row.share.toFixed(0)}% {label.toLowerCase()}
+                </p>
               </Item>
             </Fragment>
           ))}
@@ -54,4 +57,4 @@ const ReportIncomeCategories = (props: ReportIncomeCategoriesProps) => {
     </Card>
   );
 };
-export default ReportIncomeCategories;
+export default ReportCategoryDetails;

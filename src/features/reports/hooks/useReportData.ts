@@ -22,15 +22,12 @@ const useReportData = (params: UseReportDataParams) => {
     };
   });
   const pieData = breakdown.filter((row) => row.amount > 0n);
-  const daily = Array.from({ length: daysInMonth(month) }, (_, index) => ({
-    day: index + 1,
-    value:
-      Number(
-        transactions
-          .filter((row) => dayOfMonth(row.date) === index + 1)
-          .reduce((sum, row) => sum + BigInt(row.amount), 0n),
-      ) / 1000,
-  }));
+  const daily = Array.from({ length: daysInMonth(month) }, (_, index) => {
+    const amount = transactions
+      .filter((row) => dayOfMonth(row.date) === index + 1)
+      .reduce((sum, row) => sum + BigInt(row.amount), 0n);
+    return { day: index + 1, value: Number(amount) / 1000, amount };
+  });
 
   return { overview, label, transactions, total, breakdown, pieData, daily };
 };

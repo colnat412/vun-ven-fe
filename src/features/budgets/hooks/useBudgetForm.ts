@@ -3,9 +3,14 @@ import { useState } from 'react';
 import type { Category } from '../../transactions/types';
 import { useUpdateBudget } from './useUpdateBudget';
 
-export type UseBudgetFormParams = { month: string; category?: Category; initialAmount: string };
+export type UseBudgetFormParams = {
+  month: string;
+  category?: Category;
+  categoryId?: string;
+  initialAmount: string;
+};
 const useBudgetForm = (params: UseBudgetFormParams) => {
-  const { month, category, initialAmount } = params;
+  const { month, category, categoryId, initialAmount } = params;
   const [amount, setAmount] = useState(initialAmount);
   const [validationError, setValidationError] = useState('');
   const mutation = useUpdateBudget();
@@ -15,11 +20,26 @@ const useBudgetForm = (params: UseBudgetFormParams) => {
     if (mutation.isError) mutation.reset();
   };
   const submit = async (): Promise<boolean> => {
+    if (mutation.isPending) return false;
     const error = amountError(amount);
     setValidationError(error);
     if (error) return false;
     try {
-      await mutation.mutateAsync({ month, amount, category });
+      await mutation.mutateAsync({
+        month,
+        amount: BigInt(amount).toString(),
+        category,
+        categoryId,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const remove = async (): Promise<boolean> => {
+    if (mutation.isPending) return false;
+    try {
+      await mutation.mutateAsync({ month, amount: null, category, categoryId });
       return true;
     } catch {
       return false;
@@ -29,6 +49,7 @@ const useBudgetForm = (params: UseBudgetFormParams) => {
     amount,
     changeAmount,
     submit,
+    remove,
     validationError,
     error: mutation.error?.message,
     isSaving: mutation.isPending,

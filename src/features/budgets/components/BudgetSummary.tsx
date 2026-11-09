@@ -8,16 +8,19 @@ import { formatMoney } from '../../../base/utils/money';
 
 type BudgetSummaryProps = {
   month: string;
-  budget: bigint;
+  budget: bigint | null;
   spent: bigint;
   usedPercent: number;
   onEdit: () => void;
 };
 const BudgetSummary = (props: BudgetSummaryProps) => {
   const { month, budget, spent, usedPercent, onEdit } = props;
-  const remaining = budget - spent;
+  const remaining = budget === null ? null : budget - spent;
   const remainingDays = remainingDaysInMonth(month);
-  const perDay = remainingDays > 0 && remaining > 0n ? remaining / BigInt(remainingDays) : 0n;
+  const perDay =
+    remainingDays > 0 && remaining !== null && remaining > 0n
+      ? remaining / BigInt(remainingDays)
+      : 0n;
   return (
     <Card className="statistics-budget">
       <CardHeader className="row mb-0 flex items-center">
@@ -37,19 +40,29 @@ const BudgetSummary = (props: BudgetSummaryProps) => {
         </CardAction>
       </CardHeader>
       <CardContent>
-        <p className="hero-amount">{formatMoney(budget)}</p>
+        <p className="hero-amount">
+          {budget === null ? 'Chưa đặt ngân sách' : formatMoney(budget)}
+        </p>
         <Progress value={Math.min(100, usedPercent)} aria-label="Ngân sách đã dùng" />
         <div className="row mt-3 small muted">
-          <span>Đã dùng {usedPercent.toFixed(0)}%</span>
-          <span className={remaining < 0n ? 'text-destructive' : ''}>
-            {budget === 0n
-              ? 'Chưa đặt ngân sách'
+          <span
+            className={
+              budget !== null && budget > 0n && usedPercent >= 80 ? 'text-destructive' : ''
+            }
+          >
+            {budget !== null && budget > 0n
+              ? `Đã dùng ${usedPercent.toFixed(0)}%`
+              : `Đã chi ${formatMoney(spent)}`}
+          </span>
+          <span className={remaining !== null && remaining < 0n ? 'text-destructive' : ''}>
+            {remaining === null
+              ? 'Chưa giới hạn'
               : remaining < 0n
                 ? `Vượt ${formatMoney(-remaining)}`
                 : `Còn ${formatMoney(remaining)}`}
           </span>
         </div>
-        {budget > 0n && remainingDays > 0 && (
+        {budget !== null && remainingDays > 0 && (
           <p className="mt-3 small muted">
             Có thể dùng mỗi ngày <strong className="text-foreground">{formatMoney(perDay)}</strong>
           </p>

@@ -215,3 +215,48 @@ export const updateBudget = async ({
   }
   return writeBook({ ...book, budgets: { ...book.budgets, [month]: amount } });
 };
+
+export const removeBudget = async ({ month, category }: { month: string; category?: Category }) => {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new Error('Tháng không hợp lệ.');
+  const book = readBook();
+  if (category !== undefined) {
+    const limits = { ...book.categoryBudgets?.[month] };
+    delete limits[category];
+    return writeBook({ ...book, categoryBudgets: { ...book.categoryBudgets, [month]: limits } });
+  }
+  const budgets = { ...book.budgets };
+  delete budgets[month];
+  return writeBook({ ...book, budgets });
+};
+
+export const copyPreviousBudget = async (month: string) => {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new Error('Tháng không hợp lệ.');
+  const book = readBook();
+  if (
+    Object.hasOwn(book.budgets, month) ||
+    Object.keys(book.categoryBudgets?.[month] ?? {}).length
+  ) {
+    throw new Error('Tháng này đã có ngân sách. Hãy tải lại dữ liệu.');
+  }
+  const date = new Date(`${month}-01T00:00:00Z`);
+  date.setUTCMonth(date.getUTCMonth() - 1);
+  const previous = date.toISOString().slice(0, 7);
+  const activeNames = new Set(
+    definitions(book)
+      .filter((row) => row.isActive)
+      .map((row) => row.name),
+  );
+  const limits = Object.fromEntries(
+    Object.entries(book.categoryBudgets?.[previous] ?? {}).filter(([name]) =>
+      activeNames.has(name),
+    ),
+  );
+  const total = book.budgets[previous];
+  if (total === undefined && !Object.keys(limits).length)
+    throw new Error('Tháng trước chưa có hạn mức để sao chép.');
+  return writeBook({
+    ...book,
+    budgets: total === undefined ? book.budgets : { ...book.budgets, [month]: total },
+    categoryBudgets: { ...book.categoryBudgets, [month]: limits },
+  });
+};

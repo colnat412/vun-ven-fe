@@ -11,6 +11,7 @@ export const getCategoryBudgets = (book: Book, month: string) => {
     ...new Set([...getBookCategories(book), ...Object.keys(book.categoryBudgets?.[month] ?? {})]),
   ].map((category) => {
     const limits = book.categoryBudgets?.[month];
+    const hasLimit = !!limits && Object.hasOwn(limits, category);
     const limit = BigInt(
       limits && Object.hasOwn(limits, category) ? (limits[category] ?? '0') : '0',
     );
@@ -19,6 +20,10 @@ export const getCategoryBudgets = (book: Book, month: string) => {
       .reduce((total, row) => total + BigInt(row.amount), 0n);
     return {
       category,
+      categoryId: book.categoryDefinitions?.find((row) => row.name === category)?.id ?? category,
+      isActive:
+        book.categoryDefinitions?.some((row) => row.name === category && row.isActive) ?? true,
+      hasLimit,
       limit,
       spent,
       remaining: limit - spent,

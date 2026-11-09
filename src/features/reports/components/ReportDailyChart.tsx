@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/chart';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { formatMoney } from '../../../base/utils/money';
 import type { ReportDayRow } from '../types';
 
 type ReportDailyChartProps = {
@@ -70,11 +71,11 @@ const ReportDailyChart = (props: ReportDailyChartProps) => {
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-3 grid gap-2">
             {daily
-              .filter((row) => row.value > 0)
+              .filter((row) => row.amount > 0n)
               .map((row) => (
                 <div className="row" key={row.day}>
                   <span>Ngày {row.day}</span>
-                  <span>{row.value.toLocaleString('vi-VN')} nghìn đồng</span>
+                  <span>{formatMoney(row.amount)}</span>
                 </div>
               ))}
           </CollapsibleContent>

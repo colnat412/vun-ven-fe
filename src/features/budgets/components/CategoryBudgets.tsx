@@ -3,14 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ItemGroup, ItemSeparator } from '@/components/ui/item';
 import { Fragment } from 'react';
 import { formatMoney } from '../../../base/utils/money';
-import type { Category } from '../../transactions/types';
 import type { getCategoryBudgets } from '../utils/categoryBudgets';
 import CategoryBudgetItem from './CategoryBudgetItem';
 
 type CategoryBudgetsProps = {
   rows: ReturnType<typeof getCategoryBudgets>;
-  totalBudget: bigint;
-  onEdit: (category: Category, amount: string) => void;
+  totalBudget: bigint | null;
+  onEdit: (row: ReturnType<typeof getCategoryBudgets>[number]) => void;
 };
 const CategoryBudgets = (props: CategoryBudgetsProps) => {
   const { rows, totalBudget, onEdit } = props;
@@ -28,8 +27,10 @@ const CategoryBudgets = (props: CategoryBudgetsProps) => {
             <span>
               Đã phân bổ <strong className="text-foreground">{formatMoney(allocated)}</strong>
             </span>
-            <span className={totalBudget > 0n && allocated > totalBudget ? 'text-destructive' : ''}>
-              {totalBudget > 0n
+            <span
+              className={totalBudget !== null && allocated > totalBudget ? 'text-destructive' : ''}
+            >
+              {totalBudget !== null
                 ? allocated > totalBudget
                   ? `Vượt tổng ngân sách ${formatMoney(allocated - totalBudget)}`
                   : `Chưa phân bổ ${formatMoney(totalBudget - allocated)}`
@@ -38,7 +39,7 @@ const CategoryBudgets = (props: CategoryBudgetsProps) => {
           </div>
           <ItemGroup className="statistics-categories">
             {rows.map((row, index) => (
-              <Fragment key={row.category}>
+              <Fragment key={row.categoryId}>
                 {index > 0 && <ItemSeparator />}
                 <CategoryBudgetItem row={row} totalSpent={totalSpent} onEdit={onEdit} />
               </Fragment>

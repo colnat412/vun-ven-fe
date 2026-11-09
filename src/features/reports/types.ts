@@ -5,4 +5,4 @@ export type ReportCategoryRow = {
   share: number;
   color: string;
 };
-export type ReportDayRow = { day: number; value: number };
+export type ReportDayRow = { day: number; value: number; amount: bigint };
