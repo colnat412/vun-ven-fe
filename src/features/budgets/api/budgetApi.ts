@@ -1,5 +1,4 @@
 import { apiClient } from '@/lib/apiClient';
-import { ApiError } from '@/base/api/httpClient';
 import { monthKey } from '@/base/utils/date';
 import { getSession, type Session } from '../../auth/session';
 import * as guest from '../../transactions/api/guestBookApi';
@@ -64,23 +63,11 @@ export async function updateBudget(input: BudgetInput, session: Session | null =
 
 export async function copyPreviousBudget(month: string, session: Session | null = getSession()) {
   if (session) {
-    try {
-      return await apiClient.post<MonthBudget>(
-        `${path(session, month)}/copy-previous`,
-        {},
-        {
-          accessToken: session.accessToken,
-        },
-      );
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 400) {
-        throw new Error(
-          'Tháng trước chưa có hạn mức để sao chép hoặc tháng này đã có ngân sách. Hãy tải lại dữ liệu.',
-          { cause: error },
-        );
-      }
-      throw error;
-    }
+    return apiClient.post<MonthBudget>(
+      path(session, month) + '/copy-previous',
+      {},
+      { accessToken: session.accessToken },
+    );
   }
   return guest.copyPreviousBudget(month);
 }

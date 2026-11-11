@@ -1,5 +1,5 @@
 import { Button as UiButton } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { Link } from 'react-router';
 import AppIcon from '../../../base/ui/AppIcon';
 import Button from '../../../base/ui/Button';
@@ -12,8 +12,8 @@ const HomeQuickActions = (props: HomeQuickActionsProps) => {
   return (
     <div className="quick-actions">
       <Button onClick={onCreate}>
-        <Plus size={19} />
-        Ghi thủ công
+        <Sparkles size={19} />
+        Ghi nhanh
       </Button>
       <UiButton asChild variant="secondary" className="button button--secondary">
         <Link to="/reports?tab=budgets">

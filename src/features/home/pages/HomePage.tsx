@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PageState from '../../../base/ui/PageState';
 import { formatLongDate } from '../../../base/utils/date';
-import TransactionDialog from '../../transactions/components/TransactionDialog';
+import QuickTransactionDialog from '../../quick-transactions/components/QuickTransactionDialog';
 import HomeCategoryBreakdown from '../components/HomeCategoryBreakdown';
 import HomeQuickActions from '../components/HomeQuickActions';
 import HomeSummary from '../components/HomeSummary';
@@ -12,7 +12,8 @@ import useOverview from '../hooks/useOverview';
 const HomePage = () => {
   const overview = useOverview();
   const { isHidden, toggleVisibility } = useAmountVisibility();
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isQuickOpen, setIsQuickOpen] = useState(false);
+  const [notice, setNotice] = useState('');
   const date = formatLongDate();
   if (overview.isPending) return <PageState kind="loading" message="Đang mở sổ của bạn…" />;
   if (overview.error)
@@ -38,7 +39,17 @@ const HomePage = () => {
           isHidden={isHidden}
           onToggleVisibility={toggleVisibility}
         />
-        <HomeQuickActions onCreate={() => setIsFormOpen(true)} />
+        <HomeQuickActions
+          onCreate={() => {
+            setNotice('');
+            setIsQuickOpen(true);
+          }}
+        />
+        {notice && (
+          <p role="status" className="muted text-sm">
+            {notice}
+          </p>
+        )}
         <RecentTransactions transactions={overview.recent} hideAmounts={isHidden} />
       </div>
       <HomeCategoryBreakdown
@@ -46,11 +57,15 @@ const HomePage = () => {
         spent={overview.spent}
         isHidden={isHidden}
       />
-      <TransactionDialog
-        open={isFormOpen}
-        title="Thêm giao dịch"
-        onClose={() => setIsFormOpen(false)}
-      />
+      {isQuickOpen && (
+        <QuickTransactionDialog
+          onClose={() => setIsQuickOpen(false)}
+          onSaved={() => {
+            setIsQuickOpen(false);
+            setNotice('Đã ghi giao dịch vào sổ.');
+          }}
+        />
+      )}
     </div>
   );
 };

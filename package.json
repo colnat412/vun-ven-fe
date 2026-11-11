@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "test:budgets": "node --test scripts/budgets.test.cjs",
     "test:queries": "node --test scripts/read-queries.test.cjs",
+    "test:quick-transactions": "node --test scripts/quick-transactions.test.cjs",
     "preview": "vite preview",
     "format": "prettier --write src",
     "format:check": "prettier --check src",

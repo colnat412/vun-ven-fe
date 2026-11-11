@@ -14,10 +14,19 @@ const AppHeader = () => {
       </Link>
       <div className="header-actions">
         <AccountAccessButton
-          label={session ? 'Sổ tài khoản' : 'Đăng nhập'}
+          label={session ? 'Xem hồ sơ' : 'Đăng nhập'}
           className={session ? 'header-account header-account--signed-in' : 'header-account'}
         >
-          {session ? <UserRound size={21} aria-hidden="true" /> : 'Đăng nhập'}
+          {session ? (
+            <>
+              <UserRound size={21} aria-hidden="true" />
+              <span className="header-account-name" title={session.user.displayName}>
+                {session.user.displayName}
+              </span>
+            </>
+          ) : (
+            'Đăng nhập'
+          )}
         </AccountAccessButton>
       </div>
     </header>

@@ -11,9 +11,15 @@ type ModalProps = {
   title: string;
   children: ReactNode;
   onClose: () => void;
+  description?: string | null;
 };
 const Modal = (props: ModalProps) => {
-  const { title, children, onClose } = props;
+  const {
+    title,
+    children,
+    onClose,
+    description = 'Kiểm tra thông tin trước khi lưu vào sổ của bạn.',
+  } = props;
   return (
     <Dialog
       open
@@ -21,12 +27,17 @@ const Modal = (props: ModalProps) => {
         if (!open) onClose();
       }}
     >
-      <DialogContent className="app-dialog p-[27px]">
+      <DialogContent
+        className="app-dialog p-[27px]"
+        {...(!description ? { 'aria-describedby': undefined } : {})}
+      >
         <DialogHeader className="dialog-heading text-left">
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription className="text-[var(--hero-muted)]">
-            Kiểm tra thông tin trước khi lưu vào sổ của bạn.
-          </DialogDescription>
+          {description && (
+            <DialogDescription className="text-[var(--hero-muted)]">
+              {description}
+            </DialogDescription>
+          )}
         </DialogHeader>
         {children}
       </DialogContent>

@@ -6,6 +6,9 @@ import type { LoginInput, RegisterInput } from '../types';
 export const registerAccount = (input: RegisterInput) =>
   apiClient.post<unknown>('/auth/register', input, { accessToken: null });
 
+export const updateProfile = (displayName: string, accessToken: string) =>
+  apiClient.patch<Session['user']>('/auth/me', { displayName }, { accessToken });
+
 export async function authenticate(input: LoginInput): Promise<Session> {
   const auth = await apiClient.post<{ accessToken: string }>('/auth/login', input, {
     accessToken: null,

@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import './styles/theme.css';
+@import './styles/color-themes.css';
 @import './styles/spacing.css';
 
 @custom-variant dark (&:is(.dark *));
@@ -177,10 +178,21 @@
     background: color-mix(in srgb, var(--hero-foreground) 20%, transparent);
   }
   .header-account--signed-in {
-    width: 44px;
-    padding: 0;
-    border-color: transparent;
-    background: transparent;
+    gap: 8px;
+    padding: 0 12px;
+    max-width: 45vw;
+    min-width: 44px;
+  }
+  .header-account--signed-in svg {
+    width: 21px;
+    height: 21px;
+    flex-shrink: 0;
+  }
+  .header-account-name {
+    min-width: 0;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .header-actions {
     display: flex;

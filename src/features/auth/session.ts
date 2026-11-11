@@ -32,6 +32,16 @@ const subscribe = (listener: () => void) => {
 };
 export const getSession = () => session;
 export const useSession = () => useSyncExternalStore(subscribe, getSession);
+export function updateSessionUser(user: Session['user'], accessToken: string) {
+  if (!session || session.accessToken !== accessToken || session.user.id !== user.id) return;
+  session = { ...session, user };
+  try {
+    sessionStorage.setItem(key, JSON.stringify(session));
+  } catch {
+    /* The current tab can still use an in-memory session. */
+  }
+  listeners.forEach((listener) => listener());
+}
 export function setSession(next: Session | null) {
   session = next;
   try {

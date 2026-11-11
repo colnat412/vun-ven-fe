@@ -8,32 +8,17 @@ type HttpClientConfig = {
   getAccessToken?: () => string | null | undefined;
 };
 
+export const GENERIC_API_ERROR_MESSAGE = 'Có lỗi xảy ra. Vui lòng thử lại.';
+
 export class ApiError extends Error {
   readonly status: number;
 
-  constructor(status: number, message: string) {
-    super(message);
+  constructor(status: number) {
+    super(GENERIC_API_ERROR_MESSAGE);
     this.name = 'ApiError';
     this.status = status;
   }
 }
-
-const errorMessage = (status: number, authenticated: boolean) => {
-  switch (status) {
-    case 401:
-      return authenticated
-        ? 'Phiên đăng nhập đã hết hạn. Hãy đăng xuất rồi đăng nhập lại.'
-        : 'Email hoặc mật khẩu không đúng.';
-    case 409:
-      return 'Email này đã được đăng ký.';
-    case 404:
-      return 'Không tìm thấy sổ hoặc giao dịch bạn được phép truy cập.';
-    case 400:
-      return 'Thông tin chưa hợp lệ. Hãy kiểm tra lại số tiền, ngày giờ, danh mục và ví.';
-    default:
-      return 'Không thực hiện được yêu cầu. Vui lòng thử lại sau.';
-  }
-};
 
 // JSON transport for this project's { success, data } API contract.
 export const createHttpClient = (config: HttpClientConfig) => {
@@ -59,13 +44,18 @@ export const createHttpClient = (config: HttpClientConfig) => {
       response = await fetch(baseUrl + path, { ...init, method, headers, body: serializedBody });
     } catch (error) {
       if (init.signal?.aborted) throw error;
-      throw new Error('Không kết nối được máy chủ. Hãy kiểm tra kết nối rồi thử lại.', {
+      throw new Error(GENERIC_API_ERROR_MESSAGE, {
         cause: error,
       });
     }
-    if (!response.ok) throw new ApiError(response.status, errorMessage(response.status, !!token));
+    if (!response.ok) throw new ApiError(response.status);
     if (response.status === 204) return undefined as T;
-    const envelope: unknown = await response.json();
+    let envelope: unknown;
+    try {
+      envelope = await response.json();
+    } catch (error) {
+      throw new Error(GENERIC_API_ERROR_MESSAGE, { cause: error });
+    }
     if (
       !envelope ||
       typeof envelope !== 'object' ||
@@ -74,7 +64,7 @@ export const createHttpClient = (config: HttpClientConfig) => {
       (!('data' in envelope) &&
         !(method === 'DELETE' && 'message' in envelope && typeof envelope.message === 'string'))
     ) {
-      throw new Error('Máy chủ trả về dữ liệu không hợp lệ.');
+      throw new Error(GENERIC_API_ERROR_MESSAGE);
     }
     return 'data' in envelope ? (envelope.data as T) : (undefined as T);
   };
