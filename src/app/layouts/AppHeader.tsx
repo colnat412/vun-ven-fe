@@ -1,4 +1,4 @@
-import { UserRound } from 'lucide-react';
+import UserAvatar from '../../features/auth/UserAvatar';
 import { Link } from 'react-router';
 import BrandMark from '../../base/ui/BrandMark';
 import AccountAccessButton from '../../features/auth/AccountAccessButton';
@@ -17,16 +17,7 @@ const AppHeader = () => {
           label={session ? 'Xem hồ sơ' : 'Đăng nhập'}
           className={session ? 'header-account header-account--signed-in' : 'header-account'}
         >
-          {session ? (
-            <>
-              <UserRound size={21} aria-hidden="true" />
-              <span className="header-account-name" title={session.user.displayName}>
-                {session.user.displayName}
-              </span>
-            </>
-          ) : (
-            'Đăng nhập'
-          )}
+          {session ? <UserAvatar session={session} className="size-10 text-base" /> : 'Đăng nhập'}
         </AccountAccessButton>
       </div>
     </header>

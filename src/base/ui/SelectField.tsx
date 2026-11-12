@@ -6,9 +6,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useId } from 'react';
+import { useId, type ReactNode } from 'react';
 
-export type SelectOption = { value: string; label: string; disabled?: boolean };
+export type SelectOption = { value: string; label: string; disabled?: boolean; icon?: ReactNode };
 
 type SelectFieldProps = {
   label: string;
@@ -30,7 +30,7 @@ const SelectField = (props: SelectFieldProps) => {
     name,
   } = props;
   const id = useId();
-  const items = options.map((option) =>
+  const items: SelectOption[] = options.map((option) =>
     typeof option === 'string' ? { value: option, label: option } : option,
   );
   const selected = items.find((option) => option.value === value);
@@ -49,7 +49,10 @@ const SelectField = (props: SelectFieldProps) => {
         >
           <SelectValue placeholder={placeholder} className="min-w-0 flex-1">
             {selected ? (
-              <span className="block min-w-0 truncate">{selected.label}</span>
+              <span className="flex min-w-0 items-center gap-2">
+                {selected.icon}
+                <span className="min-w-0 truncate">{selected.label}</span>
+              </span>
             ) : undefined}
           </SelectValue>
         </SelectTrigger>
@@ -63,11 +66,15 @@ const SelectField = (props: SelectFieldProps) => {
           {items.map((option) => (
             <SelectItem
               key={option.value}
+              textValue={option.label}
               value={option.value}
               disabled={option.disabled}
               className="min-h-11 cursor-pointer rounded-lg py-2.5 pr-9 pl-3 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[state=checked]:bg-primary/10 data-[state=checked]:font-medium data-[state=checked]:text-primary"
             >
-              <span className="block min-w-0 whitespace-normal wrap-anywhere">{option.label}</span>
+              <span className="flex min-w-0 items-center gap-2">
+                {option.icon}
+                <span className="min-w-0 whitespace-normal wrap-anywhere">{option.label}</span>
+              </span>
             </SelectItem>
           ))}
         </SelectContent>

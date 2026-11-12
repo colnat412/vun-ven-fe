@@ -7,27 +7,20 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/ui/item';
-import { ArrowDownLeft, Car, Coffee, Ellipsis, Receipt, ShoppingBag, Sparkles } from 'lucide-react';
+import { ArrowDownLeft } from 'lucide-react';
+import { categoryIcons } from '../categoryIcons';
 import { useState } from 'react';
 import TransactionDialog from './TransactionDialog';
 import TransactionPhoto from './TransactionPhoto';
 import { formatDateTime, formatTime } from '../../../base/utils/date';
 import { formatMoney } from '../../../base/utils/money';
-import type { Category, Transaction } from '../types';
+import type { Transaction } from '../types';
 
 type TransactionListProps = {
   transactions: Transaction[];
   hideAmounts?: boolean;
   showDates?: boolean;
 };
-const icons = {
-  'Ăn uống': Coffee,
-  'Di chuyển': Car,
-  'Mua sắm': ShoppingBag,
-  'Hóa đơn': Receipt,
-  'Giải trí': Sparkles,
-  Khác: Ellipsis,
-} satisfies Record<Category, typeof Coffee>;
 const TransactionList = (props: TransactionListProps) => {
   const { transactions, hideAmounts = false, showDates = true } = props;
   const [editing, setEditing] = useState<Transaction>();
@@ -38,9 +31,9 @@ const TransactionList = (props: TransactionListProps) => {
           const Icon =
             transaction.type === 'income'
               ? ArrowDownLeft
-              : Object.hasOwn(icons, transaction.category)
-                ? icons[transaction.category as keyof typeof icons]
-                : Ellipsis;
+              : Object.hasOwn(categoryIcons, transaction.category)
+                ? categoryIcons[transaction.category]
+                : categoryIcons.Khác;
           return (
             <Item
               key={transaction.id}

@@ -9,6 +9,12 @@ export const registerAccount = (input: RegisterInput) =>
 export const updateProfile = (displayName: string, accessToken: string) =>
   apiClient.patch<Session['user']>('/auth/me', { displayName }, { accessToken });
 
+export const updateAvatar = (avatarDataUrl: string, accessToken: string) =>
+  apiClient.patch<Session['user']>('/auth/me/avatar', { avatarDataUrl }, { accessToken });
+
+export const getAvatar = (accessToken: string, signal?: AbortSignal) =>
+  apiClient.get<{ url: string; expiresAt: string }>('/auth/me/avatar', { accessToken, signal });
+
 export async function authenticate(input: LoginInput): Promise<Session> {
   const auth = await apiClient.post<{ accessToken: string }>('/auth/login', input, {
     accessToken: null,

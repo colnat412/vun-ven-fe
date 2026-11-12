@@ -8,6 +8,7 @@ import { useSession } from '../../auth/session';
 import { useBook } from '../../transactions/hooks/useBook';
 import type { CategoryDefinition } from '../../transactions/types';
 import CategoryEditor from './CategoryEditor';
+import CategoryIcon from '../../transactions/components/CategoryIcon';
 
 type CategoryManagerProps = { onClose: () => void };
 const CategoryManager = (props: CategoryManagerProps) => {
@@ -63,7 +64,10 @@ const CategoryManager = (props: CategoryManagerProps) => {
                       onClick={() => setEditing(row)}
                       aria-label={`Sửa danh mục ${row.name}`}
                     >
-                      <span className="min-w-0 truncate">{row.name}</span>
+                      <span className="flex min-w-0 items-center gap-2">
+                        <CategoryIcon category={row.name} />
+                        <span className="min-w-0 truncate">{row.name}</span>
+                      </span>
                       <ChevronRight size={16} className="shrink-0" aria-hidden="true" />
                     </button>
                   </li>

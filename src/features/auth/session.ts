@@ -3,7 +3,7 @@ import queryClient from '../../app/queryClient';
 
 export type Session = {
   accessToken: string;
-  user: { id: string; displayName: string; email: string };
+  user: { id: string; displayName: string; email: string; hasAvatar?: boolean };
   bookId: string;
 };
 const key = 'vunven.account.session';

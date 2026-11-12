@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
-import { Camera, ImagePlus, RotateCcw } from 'lucide-react';
+import { Camera, ImagePlus, PenLine, QrCode, RotateCcw } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import Button from '@/base/ui/Button';
 import PageState from '@/base/ui/PageState';
 import { GENERIC_API_ERROR_MESSAGE } from '@/base/api/httpClient';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button as UiButton } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useSession } from '../../auth/session';
 import { useBook } from '../../transactions/hooks/useBook';
@@ -223,14 +224,30 @@ const PhotoCapturePage = () => {
           </CardContent>
         </Card>
       )}
-      {!photo && (
-        <Link className="text-link text-center" to="/transactions">
-          Nhập tay thay thế
-        </Link>
-      )}
-      <Link className="text-link text-center" to="/scan">
-        Quét mã QR
-      </Link>
+      <nav aria-label="Cách ghi khác" className="grid grid-cols-2 gap-3">
+        {!photo && (
+          <UiButton
+            asChild
+            variant="outline"
+            className="h-auto min-h-14 gap-2 rounded-2xl border-border bg-card px-3 py-4 text-sm hover:bg-accent"
+          >
+            <Link to="/transactions">
+              <PenLine size={18} className="shrink-0 text-primary" aria-hidden="true" />
+              Nhập tay
+            </Link>
+          </UiButton>
+        )}
+        <UiButton
+          asChild
+          variant="outline"
+          className={`h-auto min-h-14 gap-2 rounded-2xl border-border bg-card px-3 py-4 text-sm hover:bg-accent ${photo ? 'col-span-2' : ''}`}
+        >
+          <Link to="/scan">
+            <QrCode size={18} className="shrink-0 text-primary" aria-hidden="true" />
+            Quét mã QR
+          </Link>
+        </UiButton>
+      </nav>
     </div>
   );
 };

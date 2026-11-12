@@ -1,11 +1,12 @@
 import type { FormEvent } from 'react';
-import { FieldDescription, FieldError, FieldGroup } from '@/components/ui/field';
+import { FieldError, FieldGroup } from '@/components/ui/field';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Button from '../../../base/ui/Button';
 import DatePicker from '../../../base/ui/DatePicker';
 import Input from '../../../base/ui/Input';
 import MoneyInput from '../../../base/ui/MoneyInput';
 import SelectField from '../../../base/ui/SelectField';
+import CategoryIcon from './CategoryIcon';
 import useTransactionForm from '../hooks/useTransactionForm';
 import type { Transaction, TransactionInput } from '../types';
 import { currentTime, dateKey, hasTime } from '../../../base/utils/date';
@@ -76,7 +77,11 @@ const TransactionFormFields = (props: TransactionFormFieldsProps) => {
         <SelectField
           label="Danh mục"
           value={values.category}
-          options={categoryOptions}
+          options={categoryOptions.map((category) => ({
+            value: category,
+            label: category,
+            icon: <CategoryIcon category={category} />,
+          }))}
           onValueChange={(value) => setField('category', value as TransactionInput['category'])}
         />
         <SelectField
@@ -101,7 +106,7 @@ const TransactionFormFields = (props: TransactionFormFieldsProps) => {
           required
         />
       </FieldGroup>
-      <FieldDescription className="small muted">Giờ Việt Nam (UTC+7)</FieldDescription>
+      {/* <FieldDescription className="small muted">Giờ Việt Nam (UTC+7)</FieldDescription> */}
       {error && <FieldError className="field-error">{error}</FieldError>}
       <Button type="submit" isLoading={isSaving}>
         {transaction ? 'Lưu thay đổi' : 'Lưu giao dịch'}

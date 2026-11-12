@@ -29,9 +29,9 @@ const HomePage = () => {
       />
     );
   return (
-    <div className="home-grid">
+    <div className="stack-lg">
       <h1 className="sr-only">Trang chủ</h1>
-      <div className="home-main stack-lg">
+      <div className="stack-lg">
         <HomeSummary
           month={month}
           spent={overview.spent}
@@ -44,34 +44,34 @@ const HomePage = () => {
             setIsManualOpen(true);
           }}
         />
-        <Tabs value={view} onValueChange={setView} className="gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2>Nhật ký thu chi</h2>
-            <TabsList aria-label="Cách xem nhật ký">
-              <TabsTrigger value="calendar">Lịch</TabsTrigger>
-              <TabsTrigger value="list">Danh sách</TabsTrigger>
-            </TabsList>
-          </div>
-          <TabsContent value="calendar">
-            <TransactionCalendar
-              key={month}
-              month={month}
-              onMonthChange={setMonth}
-              transactions={overview.transactions}
-              hideAmounts={isHidden}
-            />
-          </TabsContent>
-          <TabsContent value="list">
-            <RecentTransactions transactions={overview.recent} hideAmounts={isHidden} />
-          </TabsContent>
-        </Tabs>
       </div>
-      <HomeCategoryBreakdown
-        month={month}
-        rows={overview.byCategory}
-        spent={overview.spent}
-        isHidden={isHidden}
-      />
+      <Tabs value={view} onValueChange={setView} className="home-grid grid gap-[var(--space-section)]">
+        <div className="home-journal-heading flex flex-wrap items-center justify-between gap-3">
+          <h2>Nhật ký thu chi</h2>
+          <TabsList aria-label="Cách xem nhật ký">
+            <TabsTrigger value="calendar">Lịch</TabsTrigger>
+            <TabsTrigger value="list">Danh sách</TabsTrigger>
+          </TabsList>
+        </div>
+        <TabsContent value="calendar" className="home-main">
+          <TransactionCalendar
+            key={month}
+            month={month}
+            onMonthChange={setMonth}
+            transactions={overview.transactions}
+            hideAmounts={isHidden}
+          />
+        </TabsContent>
+        <TabsContent value="list" className="home-main">
+          <RecentTransactions transactions={overview.recent} hideAmounts={isHidden} />
+        </TabsContent>
+        <HomeCategoryBreakdown
+          month={month}
+          rows={overview.byCategory}
+          spent={overview.spent}
+          isHidden={isHidden}
+        />
+      </Tabs>
       <TransactionDialog open={isManualOpen} onClose={() => setIsManualOpen(false)} />
     </div>
   );

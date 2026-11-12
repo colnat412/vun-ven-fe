@@ -3,6 +3,7 @@ import Button from '@/base/ui/Button';
 import MoneyInput from '@/base/ui/MoneyInput';
 import Input from '@/base/ui/Input';
 import SelectField from '@/base/ui/SelectField';
+import CategoryIcon from '../../transactions/components/CategoryIcon';
 import DatePicker from '@/base/ui/DatePicker';
 import { amountError } from '@/base/utils/amountValidation';
 import { isValidDate, isValidTime } from '@/base/utils/date';
@@ -107,7 +108,11 @@ const PhotoReviewForm = ({ photo, draft, book, onSaved, onBusyChange }: Props) =
         <SelectField
           label="Danh mục"
           value={form.values.category}
-          options={categories}
+          options={categories.map((category) => ({
+            value: category,
+            label: category,
+            icon: <CategoryIcon category={category} />,
+          }))}
           onValueChange={(value) => form.setField('category', value)}
         />
         <SelectField
@@ -147,7 +152,7 @@ const PhotoReviewForm = ({ photo, draft, book, onSaved, onBusyChange }: Props) =
               maxLength={160}
               onChange={(event) => form.setField('note', event.target.value)}
             />
-            <p className="small muted">Giờ Việt Nam (UTC+7)</p>
+            {/* <p className="small muted">Giờ Việt Nam (UTC+7)</p> */}
           </div>
         </details>
       </fieldset>
