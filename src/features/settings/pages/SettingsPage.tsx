@@ -4,6 +4,7 @@ import { Moon, Sun } from 'lucide-react';
 import AccountSettings from '../../auth/AccountSettings';
 import useTheme, { colorThemes } from '../hooks/useTheme';
 import CategorySettings from '../../categories/components/CategorySettings';
+import WalletSettings from '../../wallets/components/WalletSettings';
 
 const SettingsPage = () => {
   const { theme, setTheme, colorTheme, setColorTheme, error: themeError } = useTheme();
@@ -13,6 +14,7 @@ const SettingsPage = () => {
         <h1>Cài đặt</h1>
       </div>
       <AccountSettings />
+      <WalletSettings />
       <CategorySettings />
       <Card>
         <CardHeader>

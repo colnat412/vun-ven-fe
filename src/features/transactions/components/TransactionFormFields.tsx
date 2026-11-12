@@ -16,9 +16,10 @@ type TransactionFormFieldsProps = {
   onDelete?: () => void;
   categoryOptions: TransactionInput['category'][];
   walletOptions: string[];
+  initialDate?: string;
 };
 const TransactionFormFields = (props: TransactionFormFieldsProps) => {
-  const { onSaved, categoryOptions, walletOptions, transaction, onDelete } = props;
+  const { onSaved, categoryOptions, walletOptions, transaction, onDelete, initialDate } = props;
   const { values, setField, submit, isSaving, error } = useTransactionForm({
     transactionId: transaction?.id,
     initialValues: transaction
@@ -31,7 +32,11 @@ const TransactionFormFields = (props: TransactionFormFieldsProps) => {
           date: dateKey(transaction.date),
           time: hasTime(transaction.date) ? currentTime(new Date(transaction.date)) : '',
         }
-      : { category: categoryOptions[0], wallet: walletOptions[0] },
+      : {
+          category: categoryOptions[0],
+          wallet: walletOptions[0],
+          ...(initialDate ? { date: initialDate } : {}),
+        },
   });
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -75,7 +80,7 @@ const TransactionFormFields = (props: TransactionFormFieldsProps) => {
           onValueChange={(value) => setField('category', value as TransactionInput['category'])}
         />
         <SelectField
-          label="Ví"
+          label={values.type === 'expense' ? 'Thanh toán bằng' : 'Nhận tiền vào'}
           value={values.wallet}
           options={walletOptions}
           onValueChange={(value) => setField('wallet', value)}

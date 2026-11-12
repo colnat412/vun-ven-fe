@@ -5,19 +5,20 @@ import { currentMonth } from '../../../base/utils/date';
 import { formatMoney } from '../../../base/utils/money';
 
 type HomeSummaryProps = {
+  month?: string;
   spent: bigint;
   income: bigint;
   isHidden: boolean;
   onToggleVisibility: () => void;
 };
 const HomeSummary = (props: HomeSummaryProps) => {
-  const { spent, income, isHidden, onToggleVisibility } = props;
+  const { spent, income, isHidden, onToggleVisibility, month = currentMonth() } = props;
   const money = (amount: bigint) => (isHidden ? '••••••' : formatMoney(amount));
   return (
     <Card className="home-summary">
       <CardHeader className="row summary-heading mb-0 flex items-center">
         <CardTitle className="text-sm font-medium">
-          Tiền ra tháng {Number(currentMonth().slice(5))}
+          Tiền ra tháng {Number(month.slice(5))}/{month.slice(0, 4)}
         </CardTitle>
         <IconButton
           label={isHidden ? 'Hiện số tiền' : 'Ẩn số tiền'}

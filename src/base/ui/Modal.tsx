@@ -28,7 +28,7 @@ const Modal = (props: ModalProps) => {
       }}
     >
       <DialogContent
-        className="app-dialog p-[27px]"
+        className="app-dialog grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden rounded-3xl p-0"
         {...(!description ? { 'aria-describedby': undefined } : {})}
       >
         <DialogHeader className="dialog-heading text-left">
@@ -39,7 +39,9 @@ const Modal = (props: ModalProps) => {
             </DialogDescription>
           )}
         </DialogHeader>
-        {children}
+        <div className="grid min-h-0 min-w-0 gap-6 overflow-y-auto overscroll-contain p-[27px]">
+          {children}
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -4,9 +4,14 @@ import LoginForm from './components/LoginForm';
 
 const LoginPage = () => {
   const location = useLocation();
-  const destination = ['/settings', '/account', '/transactions', '/reports', '/'].includes(
-    location.state?.from,
-  )
+  const destination = [
+    '/settings',
+    '/account',
+    '/transactions',
+    '/reports',
+    '/capture',
+    '/',
+  ].includes(location.state?.from)
     ? location.state.from
     : '/settings';
   return (

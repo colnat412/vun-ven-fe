@@ -9,6 +9,7 @@ import TransactionsPage from './features/transactions/pages/TransactionsPage';
 
 const ReportsPage = lazy(() => import('./features/reports/pages/ReportsPage'));
 const ScanPage = lazy(() => import('./features/scan/pages/ScanPage'));
+const PhotoCapturePage = lazy(() => import('./features/photo-transactions/pages/PhotoCapturePage'));
 const App = () => (
   <BrowserRouter>
     <Routes>
@@ -16,7 +17,15 @@ const App = () => (
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
         <Route path="transactions" element={<TransactionsPage />} />
-        <Route path="budgets" element={<Navigate to="/reports?tab=budgets" replace />} />
+        <Route path="budgets" element={<Navigate to="/reports" replace />} />
+        <Route
+          path="capture"
+          element={
+            <Suspense fallback={<PageState kind="loading" message="Đang mở máy ảnh…" />}>
+              <PhotoCapturePage />
+            </Suspense>
+          }
+        />
         <Route
           path="reports"
           element={

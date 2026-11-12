@@ -1,11 +1,11 @@
 import { toDateTime } from '../../../base/utils/date';
 import { apiClient } from '@/lib/apiClient';
 import { getSession, type Session } from '../../auth/session';
-import type { Book, Transaction, TransactionInput } from '../types';
+import type { Book, Transaction, TransactionInput, WalletDefinition } from '../types';
 import * as guest from './guestBookApi';
 
 type ServerCategory = { id: string; name: string; code: string; isActive: boolean };
-type ServerWallet = { id: string; name: string; isActive: boolean };
+type ServerWallet = WalletDefinition;
 type ServerBook = { id: string; categories: ServerCategory[]; wallets: ServerWallet[] };
 type ServerTransaction = {
   id: string;
@@ -17,6 +17,7 @@ type ServerTransaction = {
   categoryCode: string;
   categoryName: string;
   walletName: string;
+  hasPhoto?: boolean | number | string;
 };
 type Page = { items: ServerTransaction[]; total: number; page: number; limit: number };
 const bookPath = (session: Session) => '/books/' + encodeURIComponent(session.bookId);
@@ -58,6 +59,7 @@ export async function getBook(
         category: row.categoryName,
         wallet: row.walletName,
         date: row.occurredAt ?? row.occurredOn,
+        hasPhoto: row.hasPhoto === true || row.hasPhoto === 1 || row.hasPhoto === '1',
       });
     }
     if (transactions.length >= result.total) break;
@@ -71,6 +73,7 @@ export async function getBook(
     categoryDefinitions: book.categories,
     categoryOptions: book.categories.filter((row) => row.isActive).map((row) => row.name),
     walletOptions: book.wallets.filter((row) => row.isActive).map((row) => row.name),
+    walletDefinitions: book.wallets,
   };
 }
 async function saveTransaction(input: TransactionInput, session: Session | null, id?: string) {
@@ -80,7 +83,7 @@ async function saveTransaction(input: TransactionInput, session: Session | null,
     accessToken: session.accessToken,
   });
   const category = book.categories.find((row) => row.isActive && row.name === input.category);
-  const wallet = book.wallets.find((row) => row.isActive && row.name === input.wallet);
+  const wallet = book.wallets.find((row) => (row.isActive || !!id) && row.name === input.wallet);
   if (!category || !wallet)
     throw new Error('Danh mục hoặc ví không còn hoạt động. Hãy tải lại sổ.');
   const request = id ? apiClient.put : apiClient.post;
@@ -93,6 +96,8 @@ async function saveTransaction(input: TransactionInput, session: Session | null,
       walletId: wallet.id,
       note: input.note.trim(),
       occurredAt: toDateTime(input.date, input.time),
+      ...(!id && input.photoDataUrl ? { photoDataUrl: input.photoDataUrl } : {}),
+      ...(!id && input.clientRequestId ? { clientRequestId: input.clientRequestId } : {}),
     },
     { accessToken: session.accessToken },
   );

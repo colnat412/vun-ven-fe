@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import PageState from '../../../base/ui/PageState';
-import { formatLongDate } from '../../../base/utils/date';
-import QuickTransactionDialog from '../../quick-transactions/components/QuickTransactionDialog';
+import { currentMonth } from '../../../base/utils/date';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import TransactionCalendar from '../../transactions/components/TransactionCalendar';
+import TransactionDialog from '../../transactions/components/TransactionDialog';
 import HomeCategoryBreakdown from '../components/HomeCategoryBreakdown';
 import HomeQuickActions from '../components/HomeQuickActions';
 import HomeSummary from '../components/HomeSummary';
@@ -10,11 +12,11 @@ import useAmountVisibility from '../hooks/useAmountVisibility';
 import useOverview from '../hooks/useOverview';
 
 const HomePage = () => {
-  const overview = useOverview();
+  const [month, setMonth] = useState(currentMonth);
+  const overview = useOverview(month);
   const { isHidden, toggleVisibility } = useAmountVisibility();
-  const [isQuickOpen, setIsQuickOpen] = useState(false);
-  const [notice, setNotice] = useState('');
-  const date = formatLongDate();
+  const [isManualOpen, setIsManualOpen] = useState(false);
+  const [view, setView] = useState('calendar');
   if (overview.isPending) return <PageState kind="loading" message="Đang mở sổ của bạn…" />;
   if (overview.error)
     return (
@@ -28,44 +30,49 @@ const HomePage = () => {
     );
   return (
     <div className="home-grid">
-      <div className="page-heading home-heading">
-        <p className="eyebrow">{date}</p>
-        <h1 className="date-heading">Chào buổi sáng</h1>
-      </div>
+      <h1 className="sr-only">Trang chủ</h1>
       <div className="home-main stack-lg">
         <HomeSummary
+          month={month}
           spent={overview.spent}
           income={overview.income}
           isHidden={isHidden}
           onToggleVisibility={toggleVisibility}
         />
         <HomeQuickActions
-          onCreate={() => {
-            setNotice('');
-            setIsQuickOpen(true);
+          onManual={() => {
+            setIsManualOpen(true);
           }}
         />
-        {notice && (
-          <p role="status" className="muted text-sm">
-            {notice}
-          </p>
-        )}
-        <RecentTransactions transactions={overview.recent} hideAmounts={isHidden} />
+        <Tabs value={view} onValueChange={setView} className="gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2>Nhật ký thu chi</h2>
+            <TabsList aria-label="Cách xem nhật ký">
+              <TabsTrigger value="calendar">Lịch</TabsTrigger>
+              <TabsTrigger value="list">Danh sách</TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent value="calendar">
+            <TransactionCalendar
+              key={month}
+              month={month}
+              onMonthChange={setMonth}
+              transactions={overview.transactions}
+              hideAmounts={isHidden}
+            />
+          </TabsContent>
+          <TabsContent value="list">
+            <RecentTransactions transactions={overview.recent} hideAmounts={isHidden} />
+          </TabsContent>
+        </Tabs>
       </div>
       <HomeCategoryBreakdown
+        month={month}
         rows={overview.byCategory}
         spent={overview.spent}
         isHidden={isHidden}
       />
-      {isQuickOpen && (
-        <QuickTransactionDialog
-          onClose={() => setIsQuickOpen(false)}
-          onSaved={() => {
-            setIsQuickOpen(false);
-            setNotice('Đã ghi giao dịch vào sổ.');
-          }}
-        />
-      )}
+      <TransactionDialog open={isManualOpen} onClose={() => setIsManualOpen(false)} />
     </div>
   );
 };

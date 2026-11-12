@@ -1,18 +1,32 @@
 import Button from '@/base/ui/Button';
 import Input from '@/base/ui/Input';
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useCreateBook } from '../hooks/useCreateBook';
 
-const CreateBookForm = () => {
+const CreateBookForm = ({
+  onCreated,
+  onBusyChange,
+}: {
+  onCreated?: () => void;
+  onBusyChange?: (busy: boolean) => void;
+}) => {
   const [name, setName] = useState('');
   const mutation = useCreateBook();
+  const submitting = useRef(false);
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (submitting.current || !name.trim()) return;
+    submitting.current = true;
+    onBusyChange?.(true);
     try {
       await mutation.mutateAsync({ name: name.trim() });
       setName('');
+      onCreated?.();
     } catch {
       /* Display mutation.error below. */
+    } finally {
+      submitting.current = false;
+      onBusyChange?.(false);
     }
   };
   return (
@@ -31,6 +45,7 @@ const CreateBookForm = () => {
           if (mutation.isError) mutation.reset();
         }}
         required
+        autoFocus
         maxLength={120}
         disabled={mutation.isPending}
       />

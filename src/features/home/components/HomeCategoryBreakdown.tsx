@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatMoney } from '../../../base/utils/money';
 import { getCategoryColor } from '../../transactions/constants';
 import type { Category } from '../../transactions/types';
+import { currentMonth } from '../../../base/utils/date';
 
 type HomeCategoryBreakdownProps = {
   rows: {
@@ -11,16 +12,19 @@ type HomeCategoryBreakdownProps = {
   }[];
   spent: bigint;
   isHidden: boolean;
+  month?: string;
 };
 const HomeCategoryBreakdown = (props: HomeCategoryBreakdownProps) => {
-  const { rows, spent, isHidden } = props;
+  const { rows, spent, isHidden, month = currentMonth() } = props;
   const money = (amount: bigint) => (isHidden ? '••••••' : formatMoney(amount));
   return (
     <aside className="home-aside stack-lg">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Tiền đi đâu?</CardTitle>
-          <Badge variant="secondary">Tháng này</Badge>
+          <Badge variant="secondary">
+            Tháng {Number(month.slice(5))}/{month.slice(0, 4)}
+          </Badge>
         </CardHeader>
         <CardContent>
           {rows.length ? (

@@ -1,6 +1,8 @@
 import { useId, useRef, useState, type FormEvent } from 'react';
 import Button from '@/base/ui/Button';
 import Modal from '@/base/ui/Modal';
+import SelectField from '@/base/ui/SelectField';
+import { useBook } from '../../transactions/hooks/useBook';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Textarea } from '@/components/ui/textarea';
 import { useSession } from '../../auth/session';
@@ -14,8 +16,10 @@ type QuickTransactionDialogProps = {
 
 const QuickTransactionDialog = ({ onClose, onSaved }: QuickTransactionDialogProps) => {
   const session = useSession();
+  const book = useBook();
   const mutation = useQuickTransaction();
   const [text, setText] = useState('');
+  const [walletId, setWalletId] = useState('auto');
   const submitting = useRef(false);
   const id = useId();
   const uncertain = mutation.error instanceof QuickSaveUncertainError;
@@ -29,7 +33,10 @@ const QuickTransactionDialog = ({ onClose, onSaved }: QuickTransactionDialogProp
     if (submitting.current || uncertain || !canUseAi || !text.trim()) return;
     submitting.current = true;
     try {
-      const result = await mutation.mutateAsync(text);
+      const result = await mutation.mutateAsync({
+        text,
+        walletId: walletId === 'auto' ? undefined : walletId,
+      });
       if (result.status === 'saved') onSaved();
     } catch {
       // The mutation exposes a localized error below the input.
@@ -83,6 +90,21 @@ const QuickTransactionDialog = ({ onClose, onSaved }: QuickTransactionDialogProp
             Mỗi lần ghi một khoản chi.
           </p>
         </Field>
+        <SelectField
+          label="Thanh toán / nhận tiền qua"
+          value={walletId}
+          options={[
+            { value: 'auto', label: 'Nhận diện từ nội dung' },
+            ...(book.data?.walletDefinitions ?? [])
+              .filter((row) => row.isActive)
+              .map((row) => ({ value: row.id, label: row.name })),
+          ]}
+          onValueChange={(value) => {
+            setWalletId(value);
+            mutation.reset();
+          }}
+          disabled={!canUseAi || mutation.isPending || uncertain}
+        />
         <div
           id={`${id}-message`}
           role="status"

@@ -10,7 +10,8 @@ export const useQuickTransaction = () => {
   const client = useQueryClient();
   return useBaseMutation({
     mutationKey: ['transactions', 'quick-create', session?.user.id, session?.bookId],
-    mutationFn: (text: string) => createQuickTransaction(text, session),
+    mutationFn: ({ text, walletId }: { text: string; walletId?: string }) =>
+      createQuickTransaction(text, session, walletId),
     onSettled: async (result, error) => {
       if (result?.status === 'saved' || error instanceof QuickSaveUncertainError) {
         await Promise.all([

@@ -10,6 +10,7 @@ import {
 import { ArrowDownLeft, Car, Coffee, Ellipsis, Receipt, ShoppingBag, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import TransactionDialog from './TransactionDialog';
+import TransactionPhoto from './TransactionPhoto';
 import { formatDateTime, formatTime } from '../../../base/utils/date';
 import { formatMoney } from '../../../base/utils/money';
 import type { Category, Transaction } from '../types';
@@ -55,7 +56,11 @@ const TransactionList = (props: TransactionListProps) => {
               <ItemMedia
                 className={`transaction-icon bg-[var(--tint)] self-center group-has-[[data-slot=item-description]]/item:translate-y-0 group-has-[[data-slot=item-description]]/item:self-center ${transaction.type === 'income' ? 'transaction-icon--income' : ''}`}
               >
-                <Icon size={20} aria-hidden="true" />
+                {transaction.hasPhoto ? (
+                  <TransactionPhoto id={transaction.id} thumbnail />
+                ) : (
+                  <Icon size={20} aria-hidden="true" />
+                )}
               </ItemMedia>
               <ItemContent className="transaction-description min-w-0">
                 <ItemTitle className="block w-full truncate text-sm font-medium">

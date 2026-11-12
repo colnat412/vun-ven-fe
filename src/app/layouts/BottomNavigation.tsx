@@ -5,7 +5,7 @@ import {
   NavigationMenuList,
 } from '@/components/ui/navigation-menu';
 import { cn } from '@/lib/utils';
-import { Settings } from 'lucide-react';
+import { Camera, Settings } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router';
 import AppIcon from '../../base/ui/AppIcon';
 
@@ -63,13 +63,13 @@ const BottomNavigation = () => {
           </NavigationMenuList>
         </NavigationMenu>
         <NavLink
-          to="/scan"
+          to="/capture"
           className={({ isActive }) => cn('nav-qr', isActive && 'nav-qr--active')}
-          aria-label="Quét QR"
-          title="Quét QR"
+          aria-label="Ghi bằng ảnh"
+          title="Ghi bằng ảnh"
         >
-          <AppIcon name="qr-scan" size={25} />
-          <span className="nav-qr-label">Quét QR</span>
+          <Camera size={25} aria-hidden="true" />
+          <span className="nav-qr-label">Chụp ảnh</span>
         </NavLink>
       </div>
     </>

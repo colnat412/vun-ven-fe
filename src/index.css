@@ -295,9 +295,6 @@
     min-width: 0;
     grid-template-columns: minmax(0, 1fr);
   }
-  .home-heading {
-    grid-column: 1 / -1;
-  }
   .card {
     display: block;
     padding: var(--space-card);
@@ -315,15 +312,6 @@
   .budget-hero {
     background: linear-gradient(125deg, var(--tint), transparent), var(--card);
     padding: 28px;
-  }
-  .home-heading {
-    color: var(--hero-foreground);
-  }
-  .home-heading .eyebrow {
-    color: var(--hero-muted);
-    letter-spacing: 0.04em;
-    text-transform: capitalize;
-    font-size: 0.75rem;
   }
   .home-summary {
     background: var(--hero-background);
@@ -785,19 +773,13 @@
     background: var(--card);
     color: var(--foreground);
     border-color: var(--border);
-    border-radius: 24px;
     width: min(480px, calc(100% - 28px));
     max-height: 90dvh;
-    overflow-y: auto;
-    padding: 27px;
-    gap: 24px;
   }
   .app-dialog .dialog-heading {
     padding: 28px 44px 25px 27px;
-    margin: -27px -27px 0;
     background: linear-gradient(120deg, var(--header-start), var(--header-end));
     color: var(--hero-foreground);
-    border-radius: 24px 24px 0 0;
     text-align: left;
   }
   .dialog-heading [data-slot='dialog-description'] {

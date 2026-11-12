@@ -1,6 +1,14 @@
 import { isValidDateTime, toDateTime } from '../../../base/utils/date';
 import { categories, wallets } from '../constants';
-import type { Book, Category, CategoryDefinition, Transaction, TransactionInput } from '../types';
+import type {
+  Book,
+  Category,
+  CategoryDefinition,
+  Transaction,
+  TransactionInput,
+  WalletDefinition,
+  WalletKind,
+} from '../types';
 
 const storageKey = 'hu.demo.book.v1';
 const validCategoryName = (name: unknown): name is string =>
@@ -8,6 +16,14 @@ const validCategoryName = (name: unknown): name is string =>
 const definitions = (book: Book): CategoryDefinition[] =>
   book.categoryDefinitions ??
   categories.map((name, index) => ({ id: 'default-' + index, name, isActive: true }));
+const walletDefinitions = (book: Book): WalletDefinition[] =>
+  book.walletDefinitions ??
+  wallets.map((name, index) => ({
+    id: 'wallet-' + index,
+    name,
+    kind: index === 0 ? 'cash' : 'bank',
+    isActive: true,
+  }));
 const validAmount = (value: unknown): value is string =>
   typeof value === 'string' && /^\d{1,13}$/.test(value) && BigInt(value) <= 1000000000000n;
 const validTransaction = (value: unknown): value is Transaction => {
@@ -20,7 +36,7 @@ const validTransaction = (value: unknown): value is Transaction => {
     typeof row.note === 'string' &&
     row.note.length <= 160 &&
     validCategoryName(row.category) &&
-    wallets.includes(row.wallet as string) &&
+    validCategoryName(row.wallet) &&
     isValidDateTime(row.date) &&
     (row.type === 'expense' || row.type === 'income')
   );
@@ -33,7 +49,7 @@ const readBook = (): Book => {
   if (!raw) return seedBook();
   const data = JSON.parse(raw) as Book;
   // Keep books saved before the wallet label changed readable.
-  if (Array.isArray(data?.transactions)) {
+  if (Array.isArray(data?.transactions) && data.walletDefinitions === undefined) {
     data.transactions = data.transactions.map((row) =>
       row && typeof row === 'object' && row.wallet === 'Tài khoản ngân hàng'
         ? { ...row, wallet: 'Chuyển khoản' }
@@ -54,6 +70,29 @@ const readBook = (): Book => {
     throw new Error(
       'Dữ liệu trên thiết bị không đúng định dạng. Hãy xuất hoặc kiểm tra dữ liệu trước khi tiếp tục.',
     );
+  }
+  if (
+    data.walletDefinitions !== undefined &&
+    (!Array.isArray(data.walletDefinitions) ||
+      !data.walletDefinitions.every(
+        (row) =>
+          row &&
+          typeof row.id === 'string' &&
+          validCategoryName(row.name) &&
+          ['cash', 'bank', 'ewallet'].includes(row.kind) &&
+          typeof row.isActive === 'boolean',
+      ) ||
+      new Set(data.walletDefinitions.map((row) => row.id)).size !== data.walletDefinitions.length ||
+      new Set(data.walletDefinitions.map((row) => row.name.toLocaleLowerCase('vi'))).size !==
+        data.walletDefinitions.length)
+  )
+    throw new Error('Danh sách ví trên thiết bị không đúng định dạng.');
+  if (
+    data.transactions.some(
+      (row) => !walletDefinitions(data).some((wallet) => wallet.name === row.wallet),
+    )
+  ) {
+    throw new Error('Ví của giao dịch trên thiết bị không hợp lệ.');
   }
   if (
     data.categoryBudgets !== undefined &&
@@ -106,10 +145,50 @@ export const getBook = async () => {
   return {
     ...book,
     categoryDefinitions: definitions(book),
+    walletDefinitions: walletDefinitions(book),
+    walletOptions: walletDefinitions(book)
+      .filter((row) => row.isActive)
+      .map((row) => row.name),
     categoryOptions: definitions(book)
       .filter((row) => row.isActive)
       .map((row) => row.name),
   };
+};
+
+export const saveWallet = async (name: string, kind: WalletKind, id?: string) => {
+  name = name.trim();
+  if (!validCategoryName(name) || !['cash', 'bank', 'ewallet'].includes(kind))
+    throw new Error('Thông tin ví chưa hợp lệ.');
+  const book = readBook();
+  const rows = walletDefinitions(book);
+  const duplicate = rows.find(
+    (row) => row.name.toLocaleLowerCase('vi') === name.toLocaleLowerCase('vi') && row.id !== id,
+  );
+  if (duplicate && (id || duplicate.isActive)) throw new Error('Tên ngân hàng hoặc ví đã tồn tại.');
+  const current = id ? rows.find((row) => row.id === id) : duplicate;
+  if (id && !current) throw new Error('Không tìm thấy ví.');
+  const wallet = { id: current?.id ?? crypto.randomUUID(), name, kind, isActive: true };
+  return writeBook({
+    ...book,
+    walletDefinitions: current
+      ? rows.map((row) => (row.id === current.id ? wallet : row))
+      : [...rows, wallet],
+    transactions: book.transactions.map((row) =>
+      row.wallet === current?.name ? { ...row, wallet: name } : row,
+    ),
+  });
+};
+
+export const archiveWallet = async (id: string) => {
+  const book = readBook();
+  const rows = walletDefinitions(book);
+  if (!rows.some((row) => row.id === id && row.isActive)) throw new Error('Không tìm thấy ví.');
+  if (rows.filter((row) => row.isActive).length <= 1)
+    throw new Error('Cần giữ ít nhất một ví đang dùng.');
+  return writeBook({
+    ...book,
+    walletDefinitions: rows.map((row) => (row.id === id ? { ...row, isActive: false } : row)),
+  });
 };
 
 export const saveCategory = async (name: string, id?: string) => {
@@ -166,6 +245,13 @@ export const updateTransaction = async (id: string, input: TransactionInput) => 
   if (!definitions(book).some((row) => row.isActive && row.name === input.category))
     throw new Error('Danh mục không còn hoạt động.');
   if (!book.transactions.some((row) => row.id === id)) throw new Error('Không tìm thấy giao dịch.');
+  const original = book.transactions.find((row) => row.id === id)!;
+  if (
+    !walletDefinitions(book).some(
+      (row) => row.name === input.wallet && (row.isActive || input.wallet === original.wallet),
+    )
+  )
+    throw new Error('Ví không còn hoạt động.');
   const { time, ...fields } = input;
   const row = { ...fields, id, date: toDateTime(input.date, time), note: input.note.trim() };
   if (!validTransaction(row)) throw new Error('Thông tin giao dịch chưa hợp lệ.');
@@ -186,6 +272,8 @@ export const createTransaction = async (input: TransactionInput) => {
   const book = readBook();
   if (!definitions(book).some((row) => row.isActive && row.name === input.category))
     throw new Error('Danh mục không còn hoạt động.');
+  if (!walletDefinitions(book).some((row) => row.isActive && row.name === input.wallet))
+    throw new Error('Ví không còn hoạt động.');
   return writeBook({ ...book, transactions: [row, ...book.transactions] });
 };
 export const updateBudget = async ({

@@ -1,26 +1,28 @@
 import { Button as UiButton } from '@/components/ui/button';
-import { Sparkles } from 'lucide-react';
+import { Camera, PenLine } from 'lucide-react';
 import { Link } from 'react-router';
-import AppIcon from '../../../base/ui/AppIcon';
 import Button from '../../../base/ui/Button';
 
 type HomeQuickActionsProps = {
-  onCreate: () => void;
+  onManual: () => void;
 };
 const HomeQuickActions = (props: HomeQuickActionsProps) => {
-  const { onCreate } = props;
+  const { onManual } = props;
   return (
-    <div className="quick-actions">
-      <Button onClick={onCreate}>
-        <Sparkles size={19} />
-        Ghi nhanh
-      </Button>
-      <UiButton asChild variant="secondary" className="button button--secondary">
-        <Link to="/reports?tab=budgets">
-          <AppIcon name="piggy-bank-budget" size={19} />
-          Ngân sách
+    <div className="grid grid-cols-2 gap-3">
+      <UiButton
+        asChild
+        className="button button--primary h-auto min-h-14 gap-2 rounded-2xl px-3 py-4"
+      >
+        <Link to="/capture">
+          <Camera size={21} aria-hidden="true" />
+          <span className="font-semibold">Chụp ảnh</span>
         </Link>
       </UiButton>
+      <Button variant="secondary" className="h-auto min-h-14 rounded-2xl" onClick={onManual}>
+        <PenLine size={19} aria-hidden="true" />
+        Nhập tay
+      </Button>
     </div>
   );
 };

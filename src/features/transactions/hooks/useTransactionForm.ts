@@ -1,6 +1,6 @@
 import { amountError } from '@/base/utils/amountValidation';
 import { currentTime, isValidDate, isValidTime, today } from '@/base/utils/date';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { TransactionInput } from '../types';
 import { useCreateTransaction } from './useCreateTransaction';
 import { useUpdateTransaction } from './useUpdateTransaction';
@@ -21,6 +21,7 @@ const useTransactionForm = (params: UseTransactionFormParams = {}) => {
     ...params.initialValues,
   }));
   const [validationError, setValidationError] = useState('');
+  const submitting = useRef(false);
   const create = useCreateTransaction();
   const update = useUpdateTransaction();
   const mutation = params.transactionId ? update : create;
@@ -30,6 +31,7 @@ const useTransactionForm = (params: UseTransactionFormParams = {}) => {
     if (mutation.isError) mutation.reset();
   };
   const submit = async (): Promise<boolean> => {
+    if (submitting.current) return false;
     const moneyError = amountError(values.amount, 1n);
     if (moneyError) {
       setValidationError(moneyError);
@@ -40,6 +42,7 @@ const useTransactionForm = (params: UseTransactionFormParams = {}) => {
       return false;
     }
     setValidationError('');
+    submitting.current = true;
     try {
       if (params.transactionId)
         await update.mutateAsync({ id: params.transactionId, input: values });
@@ -47,6 +50,8 @@ const useTransactionForm = (params: UseTransactionFormParams = {}) => {
       return true;
     } catch {
       return false;
+    } finally {
+      submitting.current = false;
     }
   };
   return {

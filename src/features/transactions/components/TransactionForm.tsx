@@ -10,9 +10,10 @@ type TransactionFormProps = {
   onSaved: () => void;
   transaction?: Transaction;
   onDelete?: () => void;
+  initialDate?: string;
 };
 const TransactionForm = (props: TransactionFormProps) => {
-  const { onSaved, transaction, onDelete } = props;
+  const { onSaved, transaction, onDelete, initialDate } = props;
   const query = useBook();
   if (query.isPending) return <PageState kind="loading" message="Đang tải sổ…" />;
   if (query.error)
@@ -50,9 +51,15 @@ const TransactionForm = (props: TransactionFormProps) => {
     <TransactionFormFields
       onSaved={onSaved}
       transaction={transaction}
+      initialDate={initialDate}
       onDelete={onDelete}
       categoryOptions={query.data?.categoryOptions ?? categories}
-      walletOptions={query.data?.walletOptions ?? wallets}
+      walletOptions={[
+        ...new Set([
+          ...(query.data?.walletOptions ?? wallets),
+          ...(transaction ? [transaction.wallet] : []),
+        ]),
+      ]}
     />
   );
 };
