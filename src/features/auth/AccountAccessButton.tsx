@@ -1,3 +1,4 @@
+import Button from '@/base/ui/Button';
 import { useState, type ReactNode } from 'react';
 import LoginPrompt from './LoginPrompt';
 import ProfileDialog from './ProfileDialog';
@@ -13,20 +14,17 @@ const AccountAccessButton = (props: AccountAccessButtonProps) => {
   const session = useSession();
   const [open, setOpen] = useState(false);
   const button = (
-    <button type="button" className={className} aria-label={label}>
+    <Button variant="unstyled" type="button" className={className} aria-label={label}>
       {children}
-    </button>
+    </Button>
   );
   if (session) {
     return <ProfileDialog session={session}>{button}</ProfileDialog>;
   }
   return (
-    <>
-      <button type="button" className={className} aria-label={label} onClick={() => setOpen(true)}>
-        {children}
-      </button>
-      <LoginPrompt open={open} onClose={() => setOpen(false)} />
-    </>
+    <LoginPrompt open={open} onOpenChange={setOpen}>
+      {button}
+    </LoginPrompt>
   );
 };
 export default AccountAccessButton;

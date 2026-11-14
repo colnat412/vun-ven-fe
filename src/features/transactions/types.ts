@@ -1,7 +1,18 @@
 export type Category = string;
-export type CategoryDefinition = { id: string; name: string; isActive: boolean };
+export type CategoryDefinition = {
+  id: string;
+  name: string;
+  isActive: boolean;
+  icon?: string | null;
+};
 export type WalletKind = 'cash' | 'bank' | 'ewallet';
-export type WalletDefinition = { id: string; name: string; kind: WalletKind; isActive: boolean };
+export type WalletDefinition = {
+  id: string;
+  name: string;
+  kind: WalletKind;
+  isActive: boolean;
+  icon?: string | null;
+};
 export type Transaction = {
   id: string;
   amount: string;
@@ -12,6 +23,7 @@ export type Transaction = {
   date: string;
   type: 'expense' | 'income';
   hasPhoto?: boolean;
+  createdAt?: string;
 };
 export type TransactionInput = Omit<Transaction, 'id'> & {
   time: string;

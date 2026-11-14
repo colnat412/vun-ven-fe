@@ -1,19 +1,32 @@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Search } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowDownLeft, ArrowUpRight, Plus, Search } from 'lucide-react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import Button from '../../../base/ui/Button';
 import Input from '../../../base/ui/Input';
 import PageState from '../../../base/ui/PageState';
 import { compareDateTimeDescending } from '../../../base/utils/date';
-import TransactionDialog from '../../transactions/components/TransactionDialog';
 import GroupedTransactionList from '../components/GroupedTransactionList';
 import { useBook } from '../hooks/useBook';
 
 const TransactionsPage = () => {
   const query = useBook();
-  const [search, setSearch] = useState('');
-  const [type, setType] = useState('all');
-  const [isOpen, setIsOpen] = useState(false);
+  const [params, setParams] = useSearchParams();
+  const search = params.get('q') ?? '';
+  const type = ['expense', 'income'].includes(params.get('type') ?? '')
+    ? params.get('type')!
+    : 'all';
+  const setFilter = (key: string, value: string) =>
+    setParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        if (value && value !== 'all') next.set(key, value);
+        else next.delete(key);
+        return next;
+      },
+      { replace: true, preventScrollReset: true },
+    );
+  const navigate = useNavigate();
+  const location = useLocation();
   const rows = [...(query.data?.transactions ?? [])]
     .filter(
       (row) =>
@@ -30,7 +43,13 @@ const TransactionsPage = () => {
           <p className="eyebrow">SỔ CÁ NHÂN</p>
           <h1>Giao dịch</h1>
         </div>
-        <Button onClick={() => setIsOpen(true)}>
+        <Button
+          onClick={() =>
+            navigate('/transactions/new', {
+              state: { returnTo: location.pathname + location.search },
+            })
+          }
+        >
           <Plus size={18} />
           Ghi thêm
         </Button>
@@ -42,13 +61,19 @@ const TransactionsPage = () => {
           label="Tìm giao dịch"
           placeholder="Tìm ghi chú, danh mục, ví…"
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => setFilter('q', event.target.value)}
         />
-        <Tabs value={type} onValueChange={setType}>
+        <Tabs value={type} onValueChange={(value) => setFilter('type', value)}>
           <TabsList>
             <TabsTrigger value="all">Tất cả</TabsTrigger>
-            <TabsTrigger value="expense">Tiền ra</TabsTrigger>
-            <TabsTrigger value="income">Tiền vào</TabsTrigger>
+            <TabsTrigger value="expense">
+              <ArrowUpRight size={16} aria-hidden="true" />
+              Tiền ra
+            </TabsTrigger>
+            <TabsTrigger value="income">
+              <ArrowDownLeft size={16} aria-hidden="true" />
+              Tiền vào
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -70,7 +95,6 @@ const TransactionsPage = () => {
       ) : (
         <PageState kind="empty" message="Không có giao dịch phù hợp." />
       )}
-      <TransactionDialog open={isOpen} title="Thêm giao dịch" onClose={() => setIsOpen(false)} />
     </div>
   );
 };

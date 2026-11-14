@@ -1,6 +1,5 @@
-import { Button as UiButton } from '@/components/ui/button';
 import { Camera, PenLine } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import Button from '../../../base/ui/Button';
 
 type HomeQuickActionsProps = {
@@ -8,17 +7,18 @@ type HomeQuickActionsProps = {
 };
 const HomeQuickActions = (props: HomeQuickActionsProps) => {
   const { onManual } = props;
+  const location = useLocation();
   return (
     <div className="grid grid-cols-2 gap-3">
-      <UiButton
+      <Button
         asChild
         className="button button--primary h-auto min-h-14 gap-2 rounded-2xl px-3 py-4"
       >
-        <Link to="/capture">
+        <Link to="/capture" state={{ returnTo: location.pathname + location.search }}>
           <Camera size={21} aria-hidden="true" />
           <span className="font-semibold">Chụp ảnh</span>
         </Link>
-      </UiButton>
+      </Button>
       <Button variant="secondary" className="h-auto min-h-14 rounded-2xl" onClick={onManual}>
         <PenLine size={19} aria-hidden="true" />
         Nhập tay

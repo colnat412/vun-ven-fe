@@ -141,7 +141,8 @@ const ProfileDialog = ({ session, children }: ProfileDialogProps) => {
           ) : (
             <>
               <div className="mx-auto my-2 grid justify-items-center gap-2">
-                <button
+                <Button
+                  variant="unstyled"
                   type="button"
                   className="relative rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:opacity-60"
                   aria-label="Đổi ảnh đại diện"
@@ -152,7 +153,7 @@ const ProfileDialog = ({ session, children }: ProfileDialogProps) => {
                   <span className="absolute bottom-0 right-0 flex size-8 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground">
                     <Camera size={16} aria-hidden="true" />
                   </span>
-                </button>
+                </Button>
                 <input
                   ref={fileInput}
                   type="file"

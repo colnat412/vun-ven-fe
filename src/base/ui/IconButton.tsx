@@ -1,16 +1,24 @@
-import { Button } from '@/components/ui/button';
-import type { ComponentPropsWithoutRef } from 'react';
+import Button, { type ButtonProps } from './Button';
 
-type IconButtonProps = ComponentPropsWithoutRef<'button'> & {
+type IconButtonProps = Omit<Extract<ButtonProps, { asChild?: false }>, 'asChild' | 'aria-label'> & {
   label: string;
 };
 const IconButton = (componentProps: IconButtonProps) => {
-  const { label, className = '', type = 'button', ...props } = componentProps;
+  const {
+    label,
+    className = '',
+    type = 'button',
+    variant = 'ghost',
+    size = 'icon',
+    loadingLabel = '',
+    ...props
+  } = componentProps;
   return (
     <Button
       {...props}
-      variant="ghost"
-      size="icon"
+      variant={variant}
+      size={size}
+      loadingLabel={loadingLabel}
       type={type}
       aria-label={label}
       title={label}

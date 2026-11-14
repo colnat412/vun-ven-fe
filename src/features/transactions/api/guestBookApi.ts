@@ -1,4 +1,6 @@
 import { isValidDateTime, toDateTime } from '../../../base/utils/date';
+import { isCategoryIcon } from '../../categories/categoryIcons';
+import { isWalletIcon } from '../../wallets/walletIcons';
 import { categories, wallets } from '../constants';
 import type {
   Book,
@@ -80,6 +82,7 @@ const readBook = (): Book => {
           typeof row.id === 'string' &&
           validCategoryName(row.name) &&
           ['cash', 'bank', 'ewallet'].includes(row.kind) &&
+          isWalletIcon(row.icon, row.kind) &&
           typeof row.isActive === 'boolean',
       ) ||
       new Set(data.walletDefinitions.map((row) => row.id)).size !== data.walletDefinitions.length ||
@@ -120,6 +123,7 @@ const readBook = (): Book => {
           row &&
           typeof row.id === 'string' &&
           validCategoryName(row.name) &&
+          isCategoryIcon(row.icon) &&
           typeof row.isActive === 'boolean',
       ) ||
       new Set(data.categoryDefinitions.map((row) => row.id)).size !==
@@ -155,9 +159,18 @@ export const getBook = async () => {
   };
 };
 
-export const saveWallet = async (name: string, kind: WalletKind, id?: string) => {
+export const saveWallet = async (
+  name: string,
+  kind: WalletKind,
+  id?: string,
+  icon?: string | null,
+) => {
   name = name.trim();
-  if (!validCategoryName(name) || !['cash', 'bank', 'ewallet'].includes(kind))
+  if (
+    !validCategoryName(name) ||
+    !['cash', 'bank', 'ewallet'].includes(kind) ||
+    !isWalletIcon(icon, kind)
+  )
     throw new Error('Thông tin ví chưa hợp lệ.');
   const book = readBook();
   const rows = walletDefinitions(book);
@@ -167,7 +180,15 @@ export const saveWallet = async (name: string, kind: WalletKind, id?: string) =>
   if (duplicate && (id || duplicate.isActive)) throw new Error('Tên ngân hàng hoặc ví đã tồn tại.');
   const current = id ? rows.find((row) => row.id === id) : duplicate;
   if (id && !current) throw new Error('Không tìm thấy ví.');
-  const wallet = { id: current?.id ?? crypto.randomUUID(), name, kind, isActive: true };
+  const selectedIcon = icon === undefined ? (current?.icon ?? null) : icon;
+  if (!isWalletIcon(selectedIcon, kind)) throw new Error('Thông tin ví chưa hợp lệ.');
+  const wallet = {
+    id: current?.id ?? crypto.randomUUID(),
+    name,
+    kind,
+    isActive: true,
+    icon: selectedIcon,
+  };
   return writeBook({
     ...book,
     walletDefinitions: current
@@ -191,9 +212,10 @@ export const archiveWallet = async (id: string) => {
   });
 };
 
-export const saveCategory = async (name: string, id?: string) => {
+export const saveCategory = async (name: string, id?: string, icon?: string | null) => {
   name = name.trim();
   if (!validCategoryName(name)) throw new Error('Tên danh mục cần có từ 1 đến 120 ký tự.');
+  if (!isCategoryIcon(icon)) throw new Error('Hãy chọn biểu tượng hoặc nhập một emoji.');
   const book = readBook();
   const rows = definitions(book);
   const duplicate = rows.find(
@@ -202,7 +224,12 @@ export const saveCategory = async (name: string, id?: string) => {
   if (duplicate && (id || duplicate.isActive)) throw new Error('Tên danh mục đã tồn tại.');
   const current = id ? rows.find((row) => row.id === id && row.isActive) : duplicate;
   if (id && !current) throw new Error('Không tìm thấy danh mục.');
-  const category = { id: current?.id ?? crypto.randomUUID(), name, isActive: true };
+  const category = {
+    id: current?.id ?? crypto.randomUUID(),
+    name,
+    isActive: true,
+    icon: icon === undefined ? (current?.icon ?? null) : icon,
+  };
   const categoryBudgets =
     book.categoryBudgets &&
     Object.fromEntries(

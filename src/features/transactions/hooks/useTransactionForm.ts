@@ -59,6 +59,7 @@ const useTransactionForm = (params: UseTransactionFormParams = {}) => {
     setField,
     submit,
     isSaving: mutation.isPending,
+    validationError,
     error: validationError || mutation.error?.message,
   };
 };

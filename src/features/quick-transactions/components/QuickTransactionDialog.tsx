@@ -92,6 +92,7 @@ const QuickTransactionDialog = ({ onClose, onSaved }: QuickTransactionDialogProp
         </Field>
         <SelectField
           label="Thanh toán / nhận tiền qua"
+          searchable
           value={walletId}
           options={[
             { value: 'auto', label: 'Nhận diện từ nội dung' },

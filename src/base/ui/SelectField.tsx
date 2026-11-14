@@ -7,10 +7,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useId, type ReactNode } from 'react';
+import SearchableSelectField from './SearchableSelectField';
 
-export type SelectOption = { value: string; label: string; disabled?: boolean; icon?: ReactNode };
+export type SelectOption = {
+  value: string;
+  label: string;
+  disabled?: boolean;
+  icon?: ReactNode;
+  keywords?: string[];
+};
 
-type SelectFieldProps = {
+export type SelectFieldProps = {
   label: string;
   value: string;
   options: (string | SelectOption)[];
@@ -18,6 +25,9 @@ type SelectFieldProps = {
   placeholder?: string;
   disabled?: boolean;
   name?: string;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  searchSize?: 'sm' | 'default';
 };
 const SelectField = (props: SelectFieldProps) => {
   const {
@@ -34,6 +44,7 @@ const SelectField = (props: SelectFieldProps) => {
     typeof option === 'string' ? { value: option, label: option } : option,
   );
   const selected = items.find((option) => option.value === value);
+  if (props.searchable) return <SearchableSelectField {...props} />;
   return (
     <Field className="field min-w-0 gap-2">
       <FieldLabel htmlFor={id}>{label}</FieldLabel>

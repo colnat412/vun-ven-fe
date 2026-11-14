@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/chart';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Cell, Pie, PieChart } from 'recharts';
+import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { formatMoney } from '../../../base/utils/money';
 import type { Transaction } from '../../transactions/types';
 import type { ReportCategoryRow } from '../types';
@@ -89,9 +90,11 @@ const ReportCategoryChart = (props: ReportCategoryChartProps) => {
         <Tabs value={type} onValueChange={(next) => onTypeChange(next as Transaction['type'])}>
           <TabsList className="h-11 w-full rounded-full">
             <TabsTrigger className="rounded-full" value="expense">
+              <ArrowUpRight size={16} aria-hidden="true" />
               Tiền ra
             </TabsTrigger>
             <TabsTrigger className="rounded-full" value="income">
+              <ArrowDownLeft size={16} aria-hidden="true" />
               Tiền vào
             </TabsTrigger>
           </TabsList>

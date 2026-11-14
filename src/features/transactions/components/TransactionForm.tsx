@@ -1,5 +1,4 @@
 import { Link } from 'react-router';
-import Button from '@/base/ui/Button';
 import PageState from '../../../base/ui/PageState';
 import { categories, wallets } from '../constants';
 import { useBook } from '../hooks/useBook';
@@ -9,11 +8,10 @@ import type { Transaction } from '../types';
 type TransactionFormProps = {
   onSaved: () => void;
   transaction?: Transaction;
-  onDelete?: () => void;
   initialDate?: string;
 };
 const TransactionForm = (props: TransactionFormProps) => {
-  const { onSaved, transaction, onDelete, initialDate } = props;
+  const { onSaved, transaction, initialDate } = props;
   const query = useBook();
   if (query.isPending) return <PageState kind="loading" message="Đang tải sổ…" />;
   if (query.error)
@@ -27,8 +25,9 @@ const TransactionForm = (props: TransactionFormProps) => {
       />
     );
   if (
-    query.data?.categoryOptions?.length === 0 ||
-    (query.data?.source === 'server' && !query.data.walletOptions?.length)
+    !transaction &&
+    (query.data?.categoryOptions?.length === 0 ||
+      (query.data?.source === 'server' && !query.data.walletOptions?.length))
   ) {
     return (
       <div className="stack">
@@ -39,11 +38,6 @@ const TransactionForm = (props: TransactionFormProps) => {
           </Link>{' '}
           trước khi ghi giao dịch.
         </p>
-        {transaction && onDelete && (
-          <Button variant="ghost" className="text-destructive" onClick={onDelete}>
-            Xóa giao dịch
-          </Button>
-        )}
       </div>
     );
   }
@@ -52,8 +46,12 @@ const TransactionForm = (props: TransactionFormProps) => {
       onSaved={onSaved}
       transaction={transaction}
       initialDate={initialDate}
-      onDelete={onDelete}
-      categoryOptions={query.data?.categoryOptions ?? categories}
+      categoryOptions={[
+        ...new Set([
+          ...(query.data?.categoryOptions ?? categories),
+          ...(transaction ? [transaction.category] : []),
+        ]),
+      ]}
       walletOptions={[
         ...new Set([
           ...(query.data?.walletOptions ?? wallets),

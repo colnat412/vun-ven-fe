@@ -4,7 +4,13 @@ import { getSession, type Session } from '../../auth/session';
 import type { Book, Transaction, TransactionInput, WalletDefinition } from '../types';
 import * as guest from './guestBookApi';
 
-type ServerCategory = { id: string; name: string; code: string; isActive: boolean };
+type ServerCategory = {
+  id: string;
+  name: string;
+  code: string;
+  isActive: boolean;
+  icon?: string | null;
+};
 type ServerWallet = WalletDefinition;
 type ServerBook = { id: string; categories: ServerCategory[]; wallets: ServerWallet[] };
 type ServerTransaction = {
@@ -14,6 +20,7 @@ type ServerTransaction = {
   note: string;
   occurredOn: string;
   occurredAt: string | null;
+  createdAt?: string;
   categoryCode: string;
   categoryName: string;
   walletName: string;
@@ -59,6 +66,7 @@ export async function getBook(
         category: row.categoryName,
         wallet: row.walletName,
         date: row.occurredAt ?? row.occurredOn,
+        createdAt: row.createdAt,
         hasPhoto: row.hasPhoto === true || row.hasPhoto === 1 || row.hasPhoto === '1',
       });
     }

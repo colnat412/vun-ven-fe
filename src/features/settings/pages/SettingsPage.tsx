@@ -1,3 +1,4 @@
+import Button from '@/base/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FieldError } from '@/components/ui/field';
 import { Moon, Sun } from 'lucide-react';
@@ -53,7 +54,8 @@ const SettingsPage = () => {
               <Moon size={20} aria-hidden="true" />
               <label htmlFor="dark-mode-toggle">Chế độ tối</label>
             </div>
-            <button
+            <Button
+              variant="unstyled"
               id="dark-mode-toggle"
               type="button"
               role="switch"
@@ -67,7 +69,7 @@ const SettingsPage = () => {
                   {theme === 'dark' ? <Moon size={13} /> : <Sun size={13} />}
                 </span>
               </span>
-            </button>
+            </Button>
           </div>
           {themeError && <FieldError className="mt-3">{themeError}</FieldError>}
         </CardContent>

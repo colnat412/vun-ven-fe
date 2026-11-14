@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import Button from '@/base/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSession } from '../../auth/session';
 import { useBook } from '../../transactions/hooks/useBook';
-import CategoryManager from './CategoryManager';
 
 const CategorySettings = () => {
   const query = useBook();
   const session = useSession();
-  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   const canEdit = !session || !!session.bookId;
   const count = query.data?.categoryDefinitions?.filter((row) => row.isActive).length ?? 0;
   return (
@@ -30,11 +30,18 @@ const CategorySettings = () => {
                 : `${count} danh mục · ${session ? 'Sổ đang chọn' : 'Trên thiết bị này'}`}
           </p>
         )}
-        <Button variant="secondary" disabled={!canEdit} onClick={() => setOpen(true)}>
+        <Button
+          variant="secondary"
+          disabled={!canEdit}
+          onClick={() =>
+            navigate('/settings/categories', {
+              state: { returnTo: location.pathname + location.search },
+            })
+          }
+        >
           Điều chỉnh
         </Button>
       </CardContent>
-      {open && <CategoryManager onClose={() => setOpen(false)} />}
     </Card>
   );
 };

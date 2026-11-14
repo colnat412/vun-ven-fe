@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import IconButton from '@/base/ui/IconButton';
+import Button from '@/base/ui/Button';
 import Modal from '@/base/ui/Modal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import BookSelector from '../books/components/BookSelector';
@@ -38,13 +39,11 @@ const AccountSettings = () => {
               Đăng nhập để tạo và quản lý sổ tài khoản. Bạn vẫn có thể ghi thu chi trên thiết bị
               này.
             </p>
-            <Link
-              className="button button--primary inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-              to="/login"
-              state={{ from: '/settings' }}
-            >
-              Đăng nhập
-            </Link>
+            <Button asChild className="min-h-11 rounded-xl px-4 py-3 text-sm">
+              <Link to="/login" state={{ from: '/settings' }}>
+                Đăng nhập
+              </Link>
+            </Button>
           </>
         )}
       </CardContent>

@@ -1,3 +1,4 @@
+import Button from '@/base/ui/Button';
 import { Camera } from 'lucide-react';
 import { useBaseQuery } from '@/base/hooks/useBaseQuery';
 import { GENERIC_API_ERROR_MESSAGE } from '@/base/api/httpClient';
@@ -51,7 +52,8 @@ const TransactionPhoto = ({
         <p role="alert" className="field-error">
           {GENERIC_API_ERROR_MESSAGE}
         </p>
-        <button
+        <Button
+          variant="unstyled"
           type="button"
           className="text-link"
           onClick={() => {
@@ -59,20 +61,20 @@ const TransactionPhoto = ({
           }}
         >
           Tải lại ảnh
-        </button>
+        </Button>
       </div>
     );
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button type="button" className="grid w-full gap-2 text-left">
+        <Button variant="unstyled" type="button" className="grid w-full gap-2 text-left">
           <img
             src={source}
             alt="Ảnh đính kèm giao dịch"
             className="max-h-48 w-full rounded-xl bg-muted object-contain"
           />
           <span className="small text-primary">Xem ảnh đầy đủ</span>
-        </button>
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogTitle>Ảnh giao dịch</DialogTitle>

@@ -6,7 +6,7 @@ import * as React from 'react';
 import { DayPicker, getDefaultClassNames, type DayButton } from 'react-day-picker';
 
 type CalendarProps = React.ComponentProps<typeof DayPicker> & {
-  buttonVariant?: React.ComponentProps<typeof Button>['variant'];
+  buttonVariant?: Exclude<React.ComponentProps<typeof Button>['variant'], 'unstyled'>;
 };
 type CalendarDayButtonProps = React.ComponentProps<typeof DayButton>;
 const Calendar = (componentProps: CalendarProps) => {

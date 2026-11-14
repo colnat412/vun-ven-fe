@@ -1,0 +1,282 @@
+.photo-capture {
+  max-width: 560px;
+  padding-bottom: var(--space-group);
+}
+.photo-capture__back {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  flex-shrink: 0;
+}
+.photo-capture__back:hover {
+  background: var(--accent);
+}
+.photo-composer {
+  display: grid;
+  gap: var(--space-group);
+}
+.photo-composer__fields {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-group);
+}
+.photo-composer__frame {
+  position: relative;
+  isolation: isolate;
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--muted);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+.photo-camera__image,
+.photo-camera__video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  inset: 0;
+}
+.photo-camera__video--hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+.photo-camera__empty {
+  position: absolute;
+  inset: 0 0 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: var(--space-card);
+  text-align: center;
+  background: linear-gradient(135deg, var(--tint-strong), transparent), var(--card);
+}
+.photo-camera__symbol {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--tint);
+  color: var(--primary);
+}
+.photo-camera__empty h2 {
+  font-size: 1.1rem;
+}
+.photo-camera__empty p {
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+  max-width: 210px;
+}
+.photo-camera__open {
+  margin-top: 4px;
+}
+.photo-camera__tools {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+}
+.photo-camera__tools button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  color: var(--foreground);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+}
+.photo-camera__tools button:hover {
+  background: var(--accent);
+}
+.photo-camera__shutter {
+  position: absolute;
+  bottom: 202px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 62px;
+  width: 62px;
+  border: 3px solid var(--primary);
+  background: var(--card);
+  padding: 4px;
+  border-radius: 50%;
+}
+.photo-camera__shutter span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--primary);
+}
+.photo-camera__error {
+  position: absolute;
+  top: 64px;
+  left: 12px;
+  right: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  background: var(--card);
+  font-size: 0.8rem;
+}
+.photo-composer__caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 20px 16px;
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  backdrop-filter: blur(16px);
+}
+.photo-composer__kind {
+  display: flex;
+  justify-self: center;
+  padding: 4px;
+  gap: 4px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+}
+.photo-composer__kind .button {
+  min-height: 36px;
+  padding: 6px 20px;
+}
+.photo-composer__caption .field {
+  gap: 0;
+}
+.photo-composer__caption label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.photo-composer__caption input {
+  color: var(--foreground);
+  text-align: center;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  width: 100%;
+}
+.photo-composer__caption input::placeholder {
+  color: var(--muted-foreground);
+}
+.photo-composer__caption > .field input {
+  height: 34px;
+  font-size: 1rem;
+}
+.photo-composer__amount {
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  gap: 5px;
+}
+.photo-composer__amount > .field {
+  min-width: 0;
+  flex: 0 1 310px;
+}
+.photo-composer__amount input {
+  font-size: clamp(1.6rem, 6.5vw, 2.8rem);
+  height: 58px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  padding: 0 2px;
+}
+.photo-composer__amount > span {
+  font-size: 1.5rem;
+  padding-top: 9px;
+  color: var(--muted-foreground);
+}
+.photo-composer__amount .field-error {
+  font-size: 0.75rem;
+  text-align: center;
+}
+.photo-composer__hint,
+.photo-composer__footnote {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.photo-composer__hint {
+  margin-top: -4px;
+}
+.photo-composer__destination {
+  display: grid;
+  gap: var(--space-group);
+  padding: var(--space-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--card);
+}
+.photo-composer__section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.photo-composer__section-title svg {
+  color: var(--primary);
+}
+.photo-composer__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.photo-composer__details {
+  border-bottom: 1px solid var(--border);
+  padding: 0 4px 16px;
+}
+.photo-composer__details summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.photo-composer__details summary::-webkit-details-marker {
+  display: none;
+}
+.photo-composer__details[open] .photo-composer__options {
+  margin-top: var(--space-group);
+}
+.photo-composer__save.button {
+  width: 100%;
+  min-height: 48px;
+}
+.photo-composer button:disabled {
+  cursor: not-allowed;
+}
+@media (max-width: 360px) {
+  .photo-composer__frame {
+    aspect-ratio: 3 / 4;
+  }
+  .photo-composer__caption {
+    padding-inline: 14px;
+  }
+  .photo-composer__options {
+    grid-template-columns: 1fr;
+  }
+}

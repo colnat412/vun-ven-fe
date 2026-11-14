@@ -735,13 +735,12 @@
     transform: translateX(-50%);
     display: flex;
     align-items: center;
-    gap: 12px;
     width: min(510px, calc(100% - 2 * var(--page-gutter)));
   }
   .bottom-nav {
     min-width: 0;
     flex: 1;
-    height: 60px;
+    height: 76px;
     padding: 6px;
     border-radius: 999px;
     background: var(--surface-nav);
@@ -754,28 +753,26 @@
     min-width: 0;
   }
   .bottom-nav-list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     width: 100%;
     height: 100%;
     justify-content: space-between;
   }
   .bottom-nav-item {
     min-width: 0;
-    flex: 0 0 44px;
-  }
-  .bottom-nav-item[data-active] {
-    flex: 1;
   }
   .nav-item {
     display: flex;
     width: 100%;
-    height: 46px;
+    height: 58px;
     align-items: center;
     justify-content: center;
-    flex-direction: row;
-    gap: 7px;
-    padding: 0 8px;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0 4px;
     color: var(--muted-foreground);
-    font-size: 0.7rem;
+    font-size: 0.62rem;
     font-weight: 600;
     white-space: nowrap;
     border-radius: 999px;
@@ -798,41 +795,97 @@
     flex-shrink: 0;
   }
   .nav-label {
-    display: none;
+    display: block;
   }
   .nav-item--active .nav-label {
     display: block;
   }
-  .nav-qr {
+  .bottom-nav-item--camera {
+    align-self: center;
+    z-index: 1;
+  }
+  .capture-actions {
+    position: relative;
+  }
+  .capture-actions__options {
+    position: absolute;
+    bottom: calc(100% + 22px);
+    left: 50%;
     display: flex;
-    flex: 0 0 56px;
+    gap: 40px;
+    transform: translateX(-50%);
+    animation: capture-actions-expand 160ms ease-out;
+    transform-origin: bottom center;
+  }
+  .capture-actions__option {
+    display: grid;
+    place-items: center;
+    width: 56px;
     height: 56px;
+    flex-shrink: 0;
+    border: 1px solid var(--primary);
+    border-radius: 50%;
+    background: var(--card);
+    color: var(--primary);
+    box-shadow: 0 6px 20px var(--shadow);
+    transition:
+      background-color 160ms,
+      transform 160ms;
+  }
+  .capture-actions__option:hover {
+    background: var(--accent);
+    transform: translateY(-3px);
+  }
+  @keyframes capture-actions-expand {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(18px) scale(0.65);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+  }
+  .nav-camera {
+    display: flex;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 9px;
-    border: 0;
-    border-radius: 999px;
+    gap: 4px;
+    transform: translateY(-10px);
+    color: var(--primary);
+  }
+  .nav-camera-icon {
+    display: grid;
+    place-items: center;
+    width: 62px;
+    height: 62px;
+    flex-shrink: 0;
+    border-radius: 50%;
     background: var(--primary);
     color: var(--primary-foreground);
-    box-shadow: 0 8px 24px var(--focus-halo);
+    box-shadow:
+      0 0 0 5px var(--background),
+      0 6px 20px var(--focus-halo);
     transition:
       background-color 180ms,
       transform 180ms;
   }
-  .nav-qr:hover {
+  .nav-camera:hover .nav-camera-icon {
     background: var(--primary-hover);
     transform: translateY(-2px);
   }
-  .nav-qr--active {
+  .nav-camera--active .nav-camera-icon {
     background: var(--primary-hover);
     outline: 3px solid var(--focus-halo);
     outline-offset: 3px;
   }
-  .nav-qr:active {
+  .nav-camera:active .nav-camera-icon {
     transform: scale(0.96);
-  }
-  .nav-qr-label {
-    display: none;
   }
   .page-narrow {
     width: 100%;
@@ -1360,20 +1413,13 @@
     .transaction-description span {
       font-size: 0.6rem;
     }
-    .navigation-dock {
-      gap: 8px;
-    }
-    .bottom-nav-item {
-      flex-basis: 40px;
-    }
     .nav-item {
-      gap: 5px;
-      padding: 0 5px;
-      font-size: 0.66rem;
+      padding: 0 2px;
+      font-size: 0.58rem;
     }
-    .nav-qr {
-      flex-basis: 52px;
-      height: 52px;
+    .nav-camera-icon {
+      width: 56px;
+      height: 56px;
     }
     .scan-options .button {
       padding: 10px 8px;
@@ -1452,40 +1498,23 @@
   }
   @media (min-width: 1000px) {
     .navigation-dock {
-      width: auto;
+      width: min(680px, calc(100% - 48px));
       max-width: calc(100% - 48px);
-      gap: 16px;
       bottom: calc(28px + env(safe-area-inset-bottom, 0px));
     }
     .bottom-nav {
-      flex: 0 1 auto;
-      height: 68px;
+      height: 76px;
       padding: 7px;
     }
     .bottom-nav-list {
-      gap: 4px;
-    }
-    .bottom-nav-item,
-    .bottom-nav-item[data-active] {
-      flex: 0 0 auto;
+      gap: 0;
     }
     .nav-item {
       height: 52px;
-      padding: 0 21px;
-      gap: 10px;
+      padding: 0 8px;
+      flex-direction: row;
+      gap: 8px;
       font-size: 0.82rem;
-    }
-    .nav-label,
-    .nav-qr-label {
-      display: block;
-    }
-    .nav-qr {
-      flex: 0 0 auto;
-      height: 60px;
-      padding: 0 23px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      white-space: nowrap;
     }
   }
   @media (prefers-reduced-motion: reduce) {

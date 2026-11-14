@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDown, ArrowUp, Eye, EyeOff } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Eye, EyeOff } from 'lucide-react';
 import IconButton from '../../../base/ui/IconButton';
 import { currentMonth } from '../../../base/utils/date';
 import { formatMoney } from '../../../base/utils/money';
@@ -51,13 +51,13 @@ const HomeSummary = (props: HomeSummaryProps) => {
           <div className="summary-cashflow">
             <div>
               <span className="cashflow-label">
-                <ArrowDown size={18} /> Tiền vào
+                <ArrowDownLeft size={18} aria-hidden="true" /> Tiền vào
               </span>
               <strong>{money(income)}</strong>
             </div>
             <div>
               <span className="cashflow-label">
-                <ArrowUp size={18} /> Tiền ra
+                <ArrowUpRight size={18} aria-hidden="true" /> Tiền ra
               </span>
               <strong>{money(spent)}</strong>
             </div>

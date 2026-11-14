@@ -1,0 +1,23 @@
+// Compact brand assets from official websites; see public/wallet-icons/README.md.
+export const walletBrandMarks: Record<string, string> = {
+  tcb: '/wallet-icons/marks/tcb.png',
+  vcb: '/wallet-icons/marks/vcb.ico',
+  acb: '/wallet-icons/marks/acb.webp',
+  mb: '/wallet-icons/marks/mb.ico',
+  bidv: '/wallet-icons/marks/bidv.png',
+  vpb: '/wallet-icons/marks/vpb.png',
+  vib: '/wallet-icons/marks/vib.png',
+  hdb: '/wallet-icons/marks/hdb.ico',
+  tpb: '/wallet-icons/marks/tpb.ico',
+  eib: '/wallet-icons/marks/eib.png',
+  zalopay: '/wallet-icons/marks/zalopay.ico',
+  icb: '/wallet-icons/marks/icb.png',
+  stb: '/wallet-icons/marks/stb.png',
+  shopeepay: '/wallet-icons/marks/shopeepay.png',
+  momo: '/wallet-icons/marks/momo.png',
+  lpb: '/wallet-icons/marks/lpb.png',
+  msb: '/wallet-icons/marks/msb.png',
+  ocb: '/wallet-icons/marks/ocb.ico',
+  vba: '/wallet-icons/marks/vba.ico',
+  shb: '/wallet-icons/marks/shb.png',
+};

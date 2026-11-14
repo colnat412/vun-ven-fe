@@ -2,6 +2,7 @@ import Button from '@/base/ui/Button';
 import Modal from '@/base/ui/Modal';
 import { useDeleteTransaction } from '../hooks/useDeleteTransaction';
 import type { Transaction } from '../types';
+import { GENERIC_API_ERROR_MESSAGE } from '@/base/api/httpClient';
 
 type DeleteTransactionDialogProps = {
   transaction: Transaction;
@@ -28,7 +29,7 @@ const DeleteTransactionDialog = (props: DeleteTransactionDialogProps) => {
         Bạn có chắc muốn xóa giao dịch “{transaction.note || transaction.category}”? Thao tác này
         không thể hoàn tác.
       </p>
-      {mutation.error && <p role="alert">{mutation.error.message}</p>}
+      {mutation.error && <p role="alert">{GENERIC_API_ERROR_MESSAGE}</p>}
       <div className="flex justify-end gap-2">
         <Button variant="secondary" disabled={mutation.isPending} onClick={handleClose}>
           Hủy

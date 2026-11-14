@@ -1,4 +1,6 @@
-import { Outlet, useLocation } from 'react-router';
+import { Outlet, ScrollRestoration, useLocation } from 'react-router';
+import { Suspense } from 'react';
+import PageState from '@/base/ui/PageState';
 import { useSession } from '../../features/auth/session';
 import AppHeader from './AppHeader';
 import BottomNavigation from './BottomNavigation';
@@ -13,9 +15,12 @@ const AppLayout = () => {
       </a>
       <AppHeader />
       <main id="main-content" className="app-content">
-        <Outlet key={(session?.user.id ?? 'guest') + (session?.bookId ?? '')} />
+        <Suspense fallback={<PageState kind="loading" message="Đang mở màn hình…" />}>
+          <Outlet key={(session?.user.id ?? 'guest') + (session?.bookId ?? '')} />
+        </Suspense>
       </main>
       <BottomNavigation />
+      <ScrollRestoration />
     </div>
   );
 };

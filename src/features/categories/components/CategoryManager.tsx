@@ -1,31 +1,35 @@
-import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { ChevronRight, Plus } from 'lucide-react';
 import Button from '@/base/ui/Button';
 import PageState from '@/base/ui/PageState';
-import Modal from '@/base/ui/Modal';
+import PageHeader from '@/base/ui/PageHeader';
+import usePageReturn from '@/base/hooks/usePageReturn';
+import { GENERIC_API_ERROR_MESSAGE } from '@/base/api/httpClient';
 import { useSession } from '../../auth/session';
 import { useBook } from '../../transactions/hooks/useBook';
-import type { CategoryDefinition } from '../../transactions/types';
-import CategoryEditor from './CategoryEditor';
 import CategoryIcon from '../../transactions/components/CategoryIcon';
 
-type CategoryManagerProps = { onClose: () => void };
-const CategoryManager = (props: CategoryManagerProps) => {
-  const { onClose } = props;
+const CategoryManager = () => {
+  const back = usePageReturn('/settings');
+  const location = useLocation();
+  const navigate = useNavigate();
   const query = useBook();
   const session = useSession();
-  const [editing, setEditing] = useState<CategoryDefinition | null>();
   const canEdit = !session || !!session.bookId;
   const rows = query.data?.categoryDefinitions?.filter((row) => row.isActive) ?? [];
   return (
-    <Modal title="Điều chỉnh danh mục" onClose={onClose}>
+    <div className="page-narrow stack-lg">
+      <PageHeader title="Danh mục thu chi" onBack={back} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="small muted">{rows.length} danh mục</p>
         <Button
           variant="secondary"
           disabled={!canEdit || !query.data || !!query.error}
-          onClick={() => setEditing(null)}
+          onClick={() =>
+            navigate('/settings/categories/new', {
+              state: { returnTo: location.pathname + location.search },
+            })
+          }
         >
           <Plus size={16} aria-hidden="true" />
           Thêm danh mục
@@ -45,7 +49,7 @@ const CategoryManager = (props: CategoryManagerProps) => {
         ) : query.error ? (
           <PageState
             kind="error"
-            message={query.error.message}
+            message={GENERIC_API_ERROR_MESSAGE}
             onRetry={() => void query.refetch()}
           />
         ) : (
@@ -55,13 +59,18 @@ const CategoryManager = (props: CategoryManagerProps) => {
               tên để sửa hoặc xóa. Xóa danh mục vẫn giữ lịch sử giao dịch.
             </p>
             {rows.length ? (
-              <ul className="max-h-[45dvh] min-w-0 divide-y divide-border overflow-y-auto overscroll-contain">
+              <ul className="min-w-0 divide-y divide-border rounded-2xl border border-border bg-card px-4">
                 {rows.map((row) => (
                   <li key={row.id} className="min-w-0">
-                    <button
+                    <Button
+                      variant="unstyled"
                       type="button"
                       className="flex min-h-12 w-full min-w-0 items-center justify-between gap-3 py-3 text-left hover:text-primary"
-                      onClick={() => setEditing(row)}
+                      onClick={() =>
+                        navigate(`/settings/categories/${encodeURIComponent(row.id)}/edit`, {
+                          state: { returnTo: location.pathname + location.search },
+                        })
+                      }
                       aria-label={`Sửa danh mục ${row.name}`}
                     >
                       <span className="flex min-w-0 items-center gap-2">
@@ -69,7 +78,7 @@ const CategoryManager = (props: CategoryManagerProps) => {
                         <span className="min-w-0 truncate">{row.name}</span>
                       </span>
                       <ChevronRight size={16} className="shrink-0" aria-hidden="true" />
-                    </button>
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -79,14 +88,7 @@ const CategoryManager = (props: CategoryManagerProps) => {
           </div>
         )}
       </div>
-      {editing !== undefined && (
-        <CategoryEditor
-          key={editing?.id ?? 'new'}
-          category={editing ?? undefined}
-          onClose={() => setEditing(undefined)}
-        />
-      )}
-    </Modal>
+    </div>
   );
 };
 export default CategoryManager;

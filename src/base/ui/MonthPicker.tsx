@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import Button from '@/base/ui/Button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
@@ -88,7 +88,7 @@ const MonthPicker = (props: MonthPickerProps) => {
                 <Button
                   key={month}
                   type="button"
-                  variant={month === value ? 'default' : 'ghost'}
+                  variant={month === value ? 'primary' : 'ghost'}
                   aria-pressed={month === value}
                   className="h-11 rounded-xl"
                   onClick={() => {

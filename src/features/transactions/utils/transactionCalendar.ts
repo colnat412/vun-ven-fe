@@ -20,7 +20,11 @@ type CalendarDay = {
 
 export function calendarDays(transactions: Transaction[], month: string) {
   const days = new Map<string, CalendarDay>();
-  for (const row of [...transactions].sort((a, b) => compareDateTimeDescending(a.date, b.date))) {
+  for (const row of [...transactions].sort((a, b) => {
+    const occurredOrder = compareDateTimeDescending(a.date, b.date);
+    if (occurredOrder || !a.createdAt || !b.createdAt) return occurredOrder;
+    return Date.parse(b.createdAt) - Date.parse(a.createdAt);
+  })) {
     const date = dateKey(row.date);
     if (!date.startsWith(month + '-')) continue;
     const day: CalendarDay = days.get(date) ?? { expense: 0n, income: 0n, transactions: [] };
